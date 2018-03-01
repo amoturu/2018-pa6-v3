@@ -8,6 +8,7 @@
 import csv
 import math
 import re
+import copy
 
 #add in PorterStemmer from assignment 3/4
 from PorterStemmer import PorterStemmer
@@ -33,6 +34,7 @@ class Chatbot:
       self.ratedmovies = {}
       self.titleDict = {}
       self.unratedmovies = []
+      # self.binarized = []
       self.read_data()
       self.porter = PorterStemmer()
       self.positiveSet = set()
@@ -198,9 +200,6 @@ class Chatbot:
       # The values stored in each row i and column j is the rating for
       # movie i by user j
       self.titles, self.ratings = ratings()
-      #I don't think we need this because I'm doing my own sentiment stuff
-      #reader = csv.reader(open('data/sentiment.txt', 'rb'))
-      #self.sentiment = dict(reader)
       self.binarize()
 
 
@@ -213,9 +212,10 @@ class Chatbot:
       #-1 if less than mean
       #0 if no ratings
       #+1 if greater than means
-
+      # self.binarized = self.ratings
+      self.binarized = copy.copy(self.ratings)
       for row in range(0, len(self.ratings)):
-          #none of these for loops are needed use np.sum and if you do equality amone np arrays get
+          #none of these for loops are needed use np.sum and if you do equality among np arrays get
           #helpful mask to use for mean
           rate = self.ratings[row]
           totalratings = 0
@@ -231,15 +231,13 @@ class Chatbot:
                   if zerocentered[i] != 0:
                       zerocentered[i] -= mean
               binarized = [np.sign(x) for x in zerocentered]
-              self.ratings[row] = binarized
+              self.binarized[row] = binarized
+              # print self.binarized[row]
+              # print self.ratings[row]
 
 
     def distance(self, u, v):
       """Calculates a given distance function between vectors u and v"""
-      # TODO: Implement the distance function between vectors u and v]
-      # Note: you can also think of this as computing a similarity measure
-      #are we guarenteed that the vector lengths will be the same
-
       #similarity = cosine similarity on the binarized NOT pearson
 
       dotproduct = np.dot(u,v)
@@ -267,9 +265,8 @@ class Chatbot:
         for unratedmov in self.unratedmovies:
             rating = 0
             for ratedmov in self.ratedmovies:
-                dist = self.distance(self.ratings[unratedmov], self.ratings[ratedmov])
-                if dist > 0:
-                    rating += dist * self.ratedmovies[ratedmov]
+                dist = self.distance(self.binarized[unratedmov], self.binarized[ratedmov])
+                rating += dist * self.ratedmovies[ratedmov]
             if rating > highestrating:
                 highestrating = rating
                 topmovie = self.titles[unratedmov]
