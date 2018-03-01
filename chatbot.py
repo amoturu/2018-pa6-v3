@@ -39,6 +39,15 @@ class Chatbot:
       self.positiveSet = set()
       self.negativeSet = set()
       self.sentimentBuilder()
+      # %sis replaced with movie title in responses
+      self.PositiveResponse = ["It seems like you enjoyed %s. Maybe I should see it some time.",
+                                   "Wow! I'm so glad you enjoyed %s. I love when people find things they like.",
+                                   "Fantastic! Maybe we can watch %s together some time! After all, you liked it!",
+                                   "My programmer also likes %s",
+                                   "It's good to see that you found %s to be a good movie"]
+      self.NegativeResponse = ["Yikes! Remind me to not see %s",
+                                       "I'm sorry that you didn't like %s",
+                                       "I also didn't like %s"]
 
 
 
