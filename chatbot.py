@@ -150,7 +150,7 @@ class Chatbot:
             movieResponse = self.NegativeResponse[np.random.randint(0, len(self.NegativeResponse))]%movie
             return movieResponse
         if (positiveScore == 0 and negativeScore == 0) or (positiveScore == negativeScore):
-            return "I'm sorry but I can't tell"
+            return "I'm sorry but I can't tell what you think about %s. Did you like %s? " % (movie, movie)
 
 
 
@@ -213,27 +213,19 @@ class Chatbot:
       #0 if no ratings
       #+1 if greater than means
       # self.binarized = self.ratings
+
       self.binarized = copy.copy(self.ratings)
       for row in range(0, len(self.ratings)):
-          #none of these for loops are needed use np.sum and if you do equality among np arrays get
-          #helpful mask to use for mean
           rate = self.ratings[row]
-          totalratings = 0
-          totallenminus0 = 0
-          for rating in rate:
-              if rating != 0:
-                  totalratings += rating
-                  totallenminus0 += 1
-          if totallenminus0 != 0:
-              mean = totalratings/totallenminus0
-              zerocentered = rate
-              for i in range(0,len(zerocentered)):
-                  if zerocentered[i] != 0:
-                      zerocentered[i] -= mean
-              binarized = [np.sign(x) for x in zerocentered]
-              self.binarized[row] = binarized
-              # print self.binarized[row]
-              # print self.ratings[row]
+          nonzerorates = rate[rate != 0]
+          if len(nonzerorates) != 0:
+            mean = rate[rate != 0].mean()
+            zerocentered = rate
+            for i in range(0,len(zerocentered)):
+                if zerocentered[i] != 0:
+                    zerocentered[i] -= mean
+            binarized = [np.sign(x) for x in zerocentered]
+            self.binarized[row] = binarized
 
 
     def distance(self, u, v):
