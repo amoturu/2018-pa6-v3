@@ -108,15 +108,34 @@ class Chatbot:
                 self.negativeSet.add(self.porter.stem(word))
         # print self.positiveSet
 
+    def updateNegationFlag(self, negationFlag, word):
+        negativeWordSet = set(["not", "never"])
+        endOfSentence = [".", "!", "?"]
+        if word in negativeWordSet or "n't" in word:
+            negationFlag = not negationFlag
+        for punctuation in endOfSentence:
+            if punctuation in word:
+                negationFlag = False
+        return negationFlag
+
     def sentimentAnalysis(self, input, movie):
         positiveScore = 0;
         negativeScore = 0;
+        negationFlag = False;
         for word in input.split(" "):
+            negationFlag = self.updateNegationFlag(negationFlag, word)
+            word = word.replace("!", "")
+            word = word.replace(".", "")
+            word = word.replace("?", "")
             word = self.porter.stem(word)
             # print word
-            if word in self.positiveSet:
+            if (word in self.positiveSet and not negationFlag) or (word in self.negativeSet and negationFlag):
+                if ((word in self.negativeSet and negationFlag)):
+                    negationFlag = False
                 positiveScore += 1
-            if word in self.negativeSet:
+            elif (word in self.negativeSet and not negationFlag) or (word in self.positiveSet and negationFlag):
+                if (word in self.positiveSet and negationFlag):
+                    negationFlag = False
                 negativeScore += 1
         # print positiveScore
         # print negativeScore
@@ -136,14 +155,18 @@ class Chatbot:
     def extractMovie(self, input):
         movies = re.findall("\"([^\"]*)\"", input)
         if len(movies) != 1:
-            return "Please tell us about one movie"
+            return "Right now I'm detecting multiple movies. Please only tell me one movie!"
         movie = movies[0]
         if movie not in self.titleDict:
-            return "We can't find that movie in our database. Perhaps you can tell us about another one"
+            return "We can't find that movie in our database. Perhaps you can tell us about another one."
+        movieSentimentResponse = self.sentimentAnalysis(input, movie)
         if (len(self.ratedmovies) > 4):
             #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
-            return "Top Movie: " + str(self.ratingmovie()[0])
-        return self.sentimentAnalysis(input, movie)
+            return "Right now I'm detecting your top movie as: " + str(self.ratingmovie()[0])
+        else:
+            Num_Movies_Needed = 5 - len(self.ratedmovies)
+            return movieSentimentResponse + "Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
+
 
 
 
