@@ -194,12 +194,30 @@ class Chatbot:
     # 3. Movie Recommendation helper functions                                  #
     #############################################################################
 
+    def handleArticles(self):
+        for i in range(0, len(self.titles)):
+            title = self.titles[i][0]
+            if ", The (" in title:
+                title = title.replace(", The (", " (")
+                self.titles[i][0] = "The " + title
+            elif ", An (" in title:
+                title = title.replace(", An (", " (")
+                self.titles[i][0] = "An " + title
+            elif ", A (" in title:
+                title = title.replace(", A (", " (")
+                self.titles[i][0] = "A " + title
+
+
+
+
+
     def read_data(self):
       """Reads the ratings matrix from file"""
       # This matrix has the following shape: num_movies x num_users
       # The values stored in each row i and column j is the rating for
       # movie i by user j
       self.titles, self.ratings = ratings()
+      self.handleArticles();
       self.binarize()
 
 
