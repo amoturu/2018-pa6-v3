@@ -32,7 +32,6 @@ class Chatbot:
       self.seekingMovie = False
       self.ratedmovies = {}
       self.titleDict = {}
-      self.countMovieRecs = 0;
       self.unratedmovies = []
       self.read_data()
       self.porter = PorterStemmer()
@@ -44,10 +43,14 @@ class Chatbot:
                                    "Wow! I'm so glad you enjoyed %s. I love when people find things they like.",
                                    "Fantastic! Maybe we can watch %s together some time! After all, you liked it!",
                                    "My programmer also likes %s",
-                                   "It's good to see that you found %s to be a good movie"]
+                                   "It's good to see that you found %s to be a good movie",
+                               "You think %s is a good movie. And I think you are a good person!"]
       self.NegativeResponse = ["Yikes! Remind me to not see %s",
                                        "I'm sorry that you didn't like %s",
-                                       "I also didn't like %s"]
+                                       "I also didn't like %s",
+                               "I'll make sure to never see %s. Since you didn't like it!",
+                               "I should find the director and let him know he is a failure! Because you didn't like %s",
+                               "%s shouldn't even be called a movie. If you don't like something, then I don't like it either!"]
 
 
 
@@ -119,14 +122,14 @@ class Chatbot:
         # print negativeScore
         if positiveScore > negativeScore:
             self.ratedmovies[self.titleDict[movie]] = 1;
-            self.countMovieRecs += 1;
-            return "I liked"
+            movieResponse = self.PositiveResponse[np.random.randint(0, len(self.PositiveResponse))]%movie
+            return movieResponse
         if negativeScore > positiveScore:
             self.ratedmovies[self.titleDict[movie]] = -1;
-            self.countMovieRecs += 1;
-            return "I did not like"
+            movieResponse = self.NegativeResponse[np.random.randint(0, len(self.NegativeResponse))]%movie
+            return movieResponse
         if (positiveScore == 0 and negativeScore == 0) or (positiveScore == negativeScore):
-            return "I can't tell"
+            return "I'm sorry but I can't tell"
 
 
 
@@ -137,9 +140,10 @@ class Chatbot:
         movie = movies[0]
         if movie not in self.titleDict:
             return "We can't find that movie in our database. Perhaps you can tell us about another one"
-        if (self.countMovieRecs == 4):
+        if (len(self.ratedmovies) > 4):
+            #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
             return "Top Movie: " + str(self.ratingmovie()[0])
-        return movie + self.sentimentAnalysis(input, movie) + str(self.countMovieRecs)
+        return self.sentimentAnalysis(input, movie)
 
 
 
@@ -171,10 +175,10 @@ class Chatbot:
       # The values stored in each row i and column j is the rating for
       # movie i by user j
       self.titles, self.ratings = ratings()
-      reader = csv.reader(open('data/sentiment.txt', 'rb'))
-      self.sentiment = dict(reader)
+      #I don't think we need this because I'm doing my own sentiment stuff
+      #reader = csv.reader(open('data/sentiment.txt', 'rb'))
+      #self.sentiment = dict(reader)
       self.binarize()
-      self.ratingmovie()
 
 
 
@@ -188,7 +192,9 @@ class Chatbot:
       #+1 if greater than means
 
       for row in range(0, len(self.ratings)):
-          rate = np.array(self.ratings[row])
+          #none of these for loops are needed use np.sum and if you do equality amone np arrays get
+          #helpful mask to use for mean
+          rate = self.ratings[row]
           totalratings = 0
           totallenminus0 = 0
           for rating in rate:
