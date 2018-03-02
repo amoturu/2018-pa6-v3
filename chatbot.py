@@ -117,10 +117,10 @@ class Chatbot:
                                                    "Don't talk about sad things. Be excited to talk about movies.",
                                                    "Sadness is overrated. Stop talking about sad things. Talk about movies.",
                                                    "Cry me a river is a song. I'm thinking about it because you are talking about sad things and not movies."],
-                                        'disgust':[],
-                                        'anticipation':[],
-                                        'surprise':[],
-                                        'joy':[]}
+                                        'disgust':["Ew! What you just said is disgusting. Please tell me about movies. They are less disgusting."],
+                                        'anticipation':["Are you excited? I'm detecting anticipation. I'm anticipating a great movie for you."],
+                                        'surprise':["Wow, you just surprised my. Please surprise me again by talking about movies."],
+                                        'joy':["Are you happy? I'm detecting joy. Let's be happy together and talk about movies."]}
 
 
 
