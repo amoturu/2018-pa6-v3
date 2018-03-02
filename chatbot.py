@@ -33,7 +33,7 @@ class Chatbot:
       #self.seekingMovie is meant to be true when looking for another movie recommendation from the user.
       #if the input does not contain another movie recommendation it will ask the user again for one.
       self.seekingMovie = False
-      self.binary = True
+      self.binary = False
       self.havelimitgenre = False
       self.ratedmovies = {}
       self.titleDict = {}
@@ -464,7 +464,15 @@ class Chatbot:
 #                self.titles[i][0] = "A " + title
 
 
-
+    # def runExtraInitialization(self):
+    #   self.didProcessOnce = True
+    #   if self.is_turbo == False:
+    #     print "here"
+    #     self.binarize()
+    #   else:
+    #     #user user non-binary
+    #     print "non-binarizing"
+    #     self.meancenter2()
 
 
     def read_data(self):
@@ -477,7 +485,7 @@ class Chatbot:
       if self.binary:
         self.binarize()
       else:
-        #user user non-binary
+        #user user binary
         self.meancenter2()
 
 
