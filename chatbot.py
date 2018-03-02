@@ -272,7 +272,8 @@ class Chatbot:
       if self.binary:
         self.binarize()
       else:
-        self.meancenter()
+        #user user non-binary
+        self.meancenter2()
 
 
 
