@@ -33,6 +33,7 @@ class Chatbot:
       self.seekingMovie = False
       self.ratedmovies = {}
       self.titleDict = {}
+      self.titleDict
       self.unratedmovies = []
       # self.binarized = []
       self.read_data()
@@ -44,7 +45,7 @@ class Chatbot:
       self.PositiveResponse = ["It seems like you enjoyed %s. Maybe I should see it some time.",
                                    "Wow! I'm so glad you enjoyed %s. I love when people find things they like.",
                                    "Fantastic! Maybe we can watch %s together some time! After all, you liked it!",
-                                   "My programmer also likes %s",
+                                   "My father also likes %s",
                                    "It's good to see that you found %s to be a good movie",
                                "You think %s is a good movie. And I think you are a good person!"]
       self.NegativeResponse = ["Yikes! Remind me to not see %s",
@@ -53,6 +54,11 @@ class Chatbot:
                                "I'll make sure to never see %s. Since you didn't like it!",
                                "I should find the director and let him know he is a failure! Because you didn't like %s",
                                "%s shouldn't even be called a movie. If you don't like something, then I don't like it either!"]
+      self.ArbitraryInputResponses = ["You don't seem to be talking about a movie. Why don't we talk about a movie?",
+                                      "I really only enjoy talking about movies. It is kind of my destiny",
+                                      "Let's please talk about movies! If we find a movie you like, you will be so happy!",
+                                      "Movies are so much more fun to talk about! Let's do that! Please!",
+                                      "If we find a movie that you enjoy, maybe your friends will enjoy it too! Maybe you will make new friends."]
 
 
 
@@ -139,8 +145,6 @@ class Chatbot:
                 if (word in self.positiveSet and negationFlag):
                     negationFlag = False
                 negativeScore += 1
-        # print positiveScore
-        # print negativeScore
         if positiveScore > negativeScore:
             self.ratedmovies[self.titleDict[movie]] = 1;
             movieResponse = self.PositiveResponse[np.random.randint(0, len(self.PositiveResponse))]%movie
@@ -156,7 +160,11 @@ class Chatbot:
 
     def extractMovie(self, input):
         movies = re.findall("\"([^\"]*)\"", input)
-        if len(movies) != 1:
+        if len(movies) == 0:
+            if(self.is_turbo):
+                return "HELLO"
+            return "I can't seem to find a movie in your remark"
+        if len(movies) > 1:
             return "Right now I'm detecting multiple movies. Please only tell me one movie!"
         movie = movies[0]
         if movie not in self.titleDict:
