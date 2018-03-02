@@ -14,7 +14,7 @@ from collections import Counter
 
 #add in PorterStemmer from assignment 3/4
 from PorterStemmer import PorterStemmer
-
+import gzip
 
 import numpy as np
 
@@ -476,7 +476,6 @@ class Chatbot:
 
 	input_list = input.split(' ')
 	emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
-
 	for word in input_list:
 	    if word in self.emoLex['anger']:
 		emoDict['anger'] += 1
@@ -631,8 +630,9 @@ class Chatbot:
             self.meancentered[movieRow][userCol] = column[movieRow]
 
     def makeEmoLex(self):
-	with open('deps/emoLex.txt', 'r') as f:
+	with gzip.open('deps/emoLex.txt.gz', 'r') as f:
 	    lines = f.readlines()
+
 	for line in lines:
 	    datum = re.findall('(\w*)\s+(\w*)\s+([0-9])',line)
 	    if datum:
