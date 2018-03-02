@@ -46,27 +46,46 @@ class Chatbot:
       self.porter = PorterStemmer()
       self.positiveSet = set()
       self.negativeSet = set()
-      self.sentimentBuilder()
+      self.punctuationIndex = 0;
+
       self.gettinggenre = False
       # %sis replaced with movie title in responses
       self.PositiveResponse = ["It seems like you enjoyed %s. Maybe I should see it some time.",
-                                   "Wow! I'm so glad you enjoyed %s. I love when people find things they like.",
-                                   "Fantastic! Maybe we can watch %s together some time! After all, you liked it!",
+                                   "I'm so glad you liked %s. I like when people find things they like.",
+                                   "Maybe we can watch %s together some time! After all, you liked it!",
                                    "My father also likes %s",
                                    "It's good to see that you found %s to be a good movie",
                                "You think %s is a good movie. And I think you are a good person!"]
-      self.NegativeResponse = ["Yikes! Remind me to not see %s",
+      self.StrongPositiveResponse = ["This must be the greatest movie in the world! You seem to absolutely love %s",
+                                     "Hold the phone! I'm going to go see %s right now! Since you adored it so much!",
+                                     "No movie will ever compare to how amazing %s was! It must be one of your favorites!",
+                                     "Every Oscar in history should go to %s. If it is has amazing as you say it is.",
+                                     "%s isn't a movie it's a moment in history that you expereinced and that you loved! Maybe one day I'll find such happiness."]
+
+      self.StrongNegativeResponse = ["%s is disgusting! I won't see it and never put yourself through the pain of watching it again!",
+                                     "I should find the director and let him know he is a failure! Because you hated %s",
+                                     "Because of you, %s is no longer considered a movie in my eyes but rather a pile of garbage.",
+                                     "The thought of %s lack of entertainment value makes me want to cry. I'm sorry you hated it"]
+
+      self.NegativeResponse = ["Remind me to not see %s since you seem not to have liked it.",
                                        "I'm sorry that you didn't like %s",
                                        "I also didn't like %s",
                                "I'll make sure to never see %s. Since you didn't like it!",
-                               "I should find the director and let him know he is a failure! Because you didn't like %s",
-                               "%s shouldn't even be called a movie. If you don't like something, then I don't like it either!"]
+                               "If you don't like %s, then I don't like it either."]
       self.ArbitraryInputResponses = ["You don't seem to be talking about a movie. Why don't we talk about a movie?",
                                       "I really only enjoy talking about movies. It is kind of my destiny",
                                       "Let's please talk about movies! If we find a movie you like, you will be so happy!",
                                       "Movies are so much more fun to talk about! Let's do that! Please!",
                                       "If we find a movie that you enjoy, maybe your friends will enjoy it too! Maybe you will make new friends."]
       self.QuestionWords = ["Who", "Where", "Why", "What", "When", "How", "Do", "Is", "Can", "Could", "Would"]
+      self.QuestionOptions = ["How about saying please, %s? Just kidding, you are really polite, but my soul yearns to talk about movies.",
+                              "Why would anyone want to know %s? Tell me about movies.",
+                              "The answer to %s? Is found only through hours of enjoying your favorite movies. Please enjoy them.",
+                              "Would a philosopher ask %s? Does this mean you are a philosopher? Forget it, tell me about movies you like!",
+                              "I hate questions like %s. They cause me to yearn for when you would tell me about movies."]
+      self.SpecialStrongPositiveSentimentWords = ["love", "great", "amazing", "fantastic", "perfect", "incredible", "spectacular", "extraordinary", "marvelous", "awesome"]
+      self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
+      self.sentimentBuilder()
 
 
 
@@ -122,6 +141,12 @@ class Chatbot:
                 self.positiveSet.add(self.porter.stem(word))
             if evaluation == "neg":
                 self.negativeSet.add(self.porter.stem(word))
+
+        for i in xrange(0, len(self.SpecialStrongPositiveSentimentWords)):
+            self.SpecialStrongPositiveSentimentWords[i] = self.porter.stem(self.SpecialStrongPositiveSentimentWords[i])
+
+        for i in xrange(0, len(self.SpecialStrongNegativeSentimentWords)):
+            self.SpecialStrongNegativeSentimentWords[i] = self.porter.stem(self.SpecialStrongNegativeSentimentWords)
         # print self.positiveSet
 
     def updateNegationFlag(self, negationFlag, word):
@@ -134,34 +159,94 @@ class Chatbot:
                 negationFlag = False
         return negationFlag
 
+    def updateSentimentMultiplier(self, sentimentMultiplier, word):
+        modifierWordSet = set(["very", "really", "truly"])
+        endOfSentence = [".", "!", "?"]
+        if word in modifierWordSet:
+            sentimentMultiplier += 2
+        for punctuation in endOfSentence:
+            if punctuation in word:
+                sentimentMultiplier = 0
+        return sentimentMultiplier
+
+    def checkPunctuation(self, word_list, idx):
+        for i in range(idx, len(word_list)):
+            if "." in word_list[i]:
+                self.punctuationIndex = i;
+                return 0
+            if "!!" in word_list[i]:
+                self.punctuationIndex = i;
+                return 4
+            if "?" in word_list[i]:
+                self.punctuationIndex = i;
+                return 0
+            if "!" in word_list[i]:
+                self.punctuationIndex = i;
+                return 2
+        self.punctuationIndex = len(word_list)
+        return 0
+
+
+
     def sentimentAnalysis(self, input, movie):
+        input = input.replace(movie, "")
         positiveScore = 0;
         negativeScore = 0;
         negationFlag = False;
-        for word in input.split(" "):
+        sentimentMultiplier = 0;
+        exclemationPointMultiplier = 0;
+        allCapsMultiplier = 0;
+        self.punctuationIndex = 0
+        word_list = input.split(" ");
+        for idx, word in enumerate(word_list):
+            if (self.is_turbo and idx > self.punctuationIndex):
+                    exclemationPointMultiplier = self.checkPunctuation(word_list, idx)
+            if (self.is_turbo and word.isupper()):
+                allCapsMultiplier = 4;
+            else:
+                allCapsMultiplier = 0;
+            word = word.lower()
             negationFlag = self.updateNegationFlag(negationFlag, word)
+            sentimentMultiplier = self.updateSentimentMultiplier(sentimentMultiplier, word);
             word = word.replace("!", "")
             word = word.replace(".", "")
             word = word.replace("?", "")
             word = self.porter.stem(word)
-            # print word
             if (word in self.positiveSet and not negationFlag) or (word in self.negativeSet and negationFlag):
                 if ((word in self.negativeSet and negationFlag)):
                     negationFlag = False
                 positiveScore += 1
+                if(self.is_turbo):
+                    positiveScore += sentimentMultiplier
+                    sentimentMultiplier = 0;
+                    positiveScore += exclemationPointMultiplier
+                    positiveScore +=  allCapsMultiplier;
+                if (word in self.SpecialStrongPositiveSentimentWords):
+                    positiveScore += 4
             elif (word in self.negativeSet and not negationFlag) or (word in self.positiveSet and negationFlag):
                 if (word in self.positiveSet and negationFlag):
                     negationFlag = False
                 negativeScore += 1
+                if (self.is_turbo):
+                    negativeScore +=  sentimentMultiplier
+                    sentimentMultiplier = 0;
+                    negativeScore += exclemationPointMultiplier
+                    negativeScore += allCapsMultiplier
+                if (word in self.SpecialStrongNegativeSentimentWords):
+                    negativeScore += 4
         if positiveScore > negativeScore:
             self.ratedmovies[self.titleDict[movie]] = 1;
             self.extractGenres(self.titles[self.titleDict[movie]][1])
             movieResponse = self.PositiveResponse[np.random.randint(0, len(self.PositiveResponse))]%movie
+            if (positiveScore - negativeScore >= 5):
+                movieResponse = self.StrongPositiveResponse[np.random.randint(0, len(self.StrongPositiveResponse))]%movie
             return movieResponse
         if negativeScore > positiveScore:
             self.ratedmovies[self.titleDict[movie]] = -1;
             self.extractGenres(self.titles[self.titleDict[movie]][1])
             movieResponse = self.NegativeResponse[np.random.randint(0, len(self.NegativeResponse))]%movie
+            if (negativeScore - positiveScore >= 5):
+                movieResponse = self.StrongNegativeResponse[np.random.randint(0, len(self.StrongNegativeResponse))]
             return movieResponse
         if (positiveScore == 0 and negativeScore == 0) or (positiveScore == negativeScore):
             return "I'm sorry but I can't tell what you think about %s. Did you like %s? " % (movie, movie)
@@ -172,13 +257,33 @@ class Chatbot:
       for gen in currentMovieGenres:
         self.topgenres[gen] = self.topgenres.get(gen, 0) + 1
 
+    def handleUnrelatedInput(self, input):
+        unrelateds = re.findall("Can you ([^\?\.\!]*)\?", input, flags=re.IGNORECASE)
+        if (len(unrelateds) != 0):
+            canYouStuff = ["I can %s. But tell me about how you feel about movies!", "I can't %s. But I can tell you about movies!", "To %s is a challenge but I'm up to it in three years. For now, let's talk about movies!", "Why would %sing be difficult, do you not believe in me. In the end though, you just really need to start talking about movies!"]
+            unrelateds = canYouStuff[np.random.randint(0, len(canYouStuff))]%unrelateds[0]
+            return unrelateds
+        unrelateds = re.findall("([^\?\.\!]*)\?", input)
+        if (len(unrelateds) != 0):
+            unrelateds = unrelateds[0]
+            if(len(unrelateds) > 0):
+                unrelateds = unrelateds[0].lower() + unrelateds[1:]
+            questionPhrase = self.QuestionOptions[np.random.randint(0, len(self.QuestionOptions))]%unrelateds;
+            return questionPhrase
+        else:
+            return None
+
+
+
     def extractMovie(self, input):
         movies = re.findall("\"([^\"]*)\"", input)
         if len(movies) == 0:
             if(self.is_turbo):
                 movies = self.extractUnquotedMovies(input)
                 if len(movies) == 0:
-
+                    unrelated = self.handleUnrelatedInput(input)
+                    if (unrelated != None):
+                        return unrelated
                     return "I can't seem to find a movie in your remark"
             else:
                 return "I can't seem to find a movie in your remark"
@@ -203,7 +308,7 @@ class Chatbot:
               return "Ok! Right now I'm detecting your top movie as: " + str(self.ratingmovie()[0])
         else:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
-            return movieSentimentResponse + "Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
+            return movieSentimentResponse + " Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
 
     def extractWithForeignTitles(self, input):
         movies = re.findall("\"([^\"]*)\"", input)
