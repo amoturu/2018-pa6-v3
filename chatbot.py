@@ -43,6 +43,7 @@ class Chatbot:
       self.unratedmovies = []
       self.genres = ["Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance", "Drama", "Thriller", "Horror", "Action", "Sci-Fi", "Mystery", "Crime", "Documentary", "War", "Musical", "Western"]
       self.findNamesRegex = '(.*?) (?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(\([0-9]{4}-?(?:[0-9]{4})?\))'
+      self.emoLex = {'anger':[],'anticipation':[],'disgust':[],'fear':[],'joy':[],'negative':[],'positive':[],'sadness':[],'surprise':[],'trust':[]}
       # self.binarized = []
       self.read_data()
       self.porter = PorterStemmer()
@@ -360,43 +361,28 @@ class Chatbot:
 
     #returns the emotion the person is likely feeling. Still need good words though.
     def findEmotion(self, input):
-        angrywords = ['angry','anger','mad','furious','livid','irate','irritated','irritating','outraged','outrageous','seething','infuriated','incensed']
-        confusedwords = ['confused','confusing','n\'t understand','nt understand','not understand']
-        sadwords = ['sad','unhappy','grumpy','depressed','depressing']
-        if 'thank you' in input.lower() or 'thanks' in input.lower():
-            return 'No, thank you!'
-        if 'im sorry' in input.lower() or 'i\'m sorry' in input.lower():
-            return 'Don\'t apologize! Everyone is entitled to their own opinion.'
+	input = re.sub('[^\w\s]','',input)
 
-	emoDict = {'anger':0,'fear':0,'trust':0,'sad':0,'disgust':0,'anticip':0,'surprise':0,'joy':0}
+	input_list = input.split(' ')
+	emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
 
-	for word in input:
-	    if word in angrywords:
+	for word in input_list:
+	    if word in self.emoLex['anger']:
 		emoDict['anger'] += 1
-	    if word in fearwords:
+	    if word in self.emoLex['fear']:
 		emoDict['fear'] += 1
-	    if word in trustwords:
+	    if word in self.emoLex['trust']:
 		emoDict['trust'] += 1
-	    if word in sadwords:
-		emoDict['sad'] += 1
-	    if word in disgustwords:
+	    if word in self.emoLex['sadness']:
+		emoDict['sadness'] += 1
+	    if word in self.emoLex['disgust']:
 		emoDict['disgust'] += 1
-	    if word in anticipwords:
-		emoDict['anticip'] += 1
-	    if word in surprisewords:
+	    if word in self.emoLex['anticipation']:
+		emoDict['anticipation'] += 1
+	    if word in self.emoLex['surprise']:
 		emoDict['surprise'] += 1
-	    if word in joywords:
+	    if word in self.emoLex['joy']:
 		emoDict['joy'] += 1
-        #formatted this way because some emotion keywords have spaces in them
-#        for word in angrywords:
-#            if word in input:
-#                return 'If you are ever angry about something, why not tell me about a movie you enjoyed?'
-#        for word in confusedwords:
-#            if word in input:
-#                return 'If you\'re confused about something, just tell me about a movie you\'ve enjoyed!'
-#        for word in sadwords:
-#            if word in input:
-#                return 'When I\'m sad, I like to talk about my favorite movies. What was a movie you really enjoyed?'
         return max(emoDict, key = emoDict.get)
 
 
@@ -487,7 +473,7 @@ class Chatbot:
       else:
         #user user binary
         self.meancenter2()
-
+      self.makeEmoLex()
 
 
     def binarize(self):
@@ -532,6 +518,21 @@ class Chatbot:
           column[column > 0] -= mean
           for movieRow in range(0, len(self.ratings)):
             self.meancentered[movieRow][userCol] = column[movieRow]
+
+    def makeEmoLex(self):
+	with open('deps/emoLex.txt', 'r') as f:
+	    lines = f.readlines()
+	for line in lines:
+	    datum = re.findall('(\w*)\s+(\w*)\s+([0-9])',line)
+	    if datum:
+		datum = list(datum[0])
+	    else:
+		continue
+	    word = datum[0]
+	    emotion = datum[1]
+	    val = datum[2]
+	    if val == '1':
+		self.emoLex[emotion].append(word)
 
     def distance(self, u, v):
       """Calculates a given distance function between vectors u and v"""
