@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c87be2d3-4caa-48f7-b108-915f93110f66" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/chatbot.py" afterPath="$PROJECT_DIR$/chatbot.py" />
     </list>
     <ignored path="2018-pa6-v3.iws" />
@@ -27,11 +28,11 @@
       <file leaf-file-name="chatbot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/chatbot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="122" column="128" selection-start-line="122" selection-start-column="128" selection-end-line="122" selection-end-column="128" />
+            <state relative-caret-position="257">
+              <caret line="542" column="51" selection-start-line="542" selection-start-column="51" selection-end-line="542" selection-end-column="51" />
               <folding>
                 <element signature="e#213#223#0" expanded="true" />
-                <marker date="1520030678000" expanded="false" signature="213:245" ph="import ..." />
+                <marker date="1520032518000" expanded="false" signature="213:245" ph="import ..." />
               </folding>
             </state>
           </provider>
@@ -136,7 +137,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="127" />
+    <option name="x" value="486" />
     <option name="y" value="23" />
     <option name="width" value="1219" />
     <option name="height" value="626" />
@@ -433,7 +434,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="127" y="23" width="1219" height="626" extended-state="0" />
+    <frame x="486" y="23" width="1219" height="626" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2100082" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -490,7 +491,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#213#223#0" expanded="true" />
-            <marker date="1520030678000" expanded="false" signature="213:245" ph="import ..." />
+            <marker date="1520032518000" expanded="false" signature="213:245" ph="import ..." />
           </folding>
         </state>
       </provider>
@@ -631,13 +632,21 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/deps/emoLex.txt.gz">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="20" selection-start-line="8" selection-start-column="20" selection-end-line="8" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/chatbot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="122" column="128" selection-start-line="122" selection-start-column="128" selection-end-line="122" selection-end-column="128" />
+        <state relative-caret-position="257">
+          <caret line="542" column="51" selection-start-line="542" selection-start-column="51" selection-end-line="542" selection-end-column="51" />
           <folding>
             <element signature="e#213#223#0" expanded="true" />
-            <marker date="1520030678000" expanded="false" signature="213:245" ph="import ..." />
+            <marker date="1520032518000" expanded="false" signature="213:245" ph="import ..." />
           </folding>
         </state>
       </provider>

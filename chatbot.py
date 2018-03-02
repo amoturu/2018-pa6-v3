@@ -96,7 +96,6 @@ class Chatbot:
                               "I hate questions like \"%s\" They cause me to yearn for when you would tell me about movies."]
       self.SpecialStrongPositiveSentimentWords = ["love", "great", "amazing", "fantastic", "perfect", "incredible", "spectacular", "extraordinary", "marvelous", "awesome"]
       self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
-      self.sentimentBuilder()
       self.emotionResponseDictionary = {"anger" : ["You seem angry. I find that watching movies makes me feel less angry.",
                                                    "I'm detecting anger. Please don't hurt me.",
                                                    "If you are angry, please drink a delicious diet coke and watch a movie",
@@ -354,7 +353,7 @@ class Chatbot:
             questionPhrase = self.QuestionOptions[np.random.randint(0, len(self.QuestionOptions))]%unrelateds;
             return questionPhrase
         else:
-            return None
+            return self.findEmotion(input)
 
 
 
@@ -519,27 +518,40 @@ class Chatbot:
 
     #returns the emotion the person is likely feeling. Still need good words though.
     def findEmotion(self, input):
-	input = re.sub('[^\w\s]','',input)
+        input = re.sub('[^\w\s]','',input)
+        input_list = input.split(' ')
+        emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
+        foundE = False;
+        for word in input_list:
+            word = self.porter.stem(word)
+            word = word.lower()
+            if word in self.emoLex['anger']:
+                emoDict['anger'] += 1
+                foundE = True;
+            if word in self.emoLex['fear']:
+                emoDict['fear'] += 1
+                foundE = True;
+            if word in self.emoLex['trust']:
+                emoDict['trust'] += 1
+                foundE = True;
+            if word in self.emoLex['sadness']:
+                emoDict['sadness'] += 1
+                foundE = True;
+            if word in self.emoLex['disgust']:
+                emoDict['disgust'] += 1
+                foundE = True;
+            if word in self.emoLex['anticipation']:
+                emoDict['anticipation'] += 1
+                foundE = True;
+            if word in self.emoLex['surprise']:
+                emoDict['surprise'] += 1
+                foundE = True;
+            if word in self.emoLex['joy']:
+                emoDict['joy'] += 1
+                foundE = True;
 
-	input_list = input.split(' ')
-	emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
-	for word in input_list:
-	    if word in self.emoLex['anger']:
-		emoDict['anger'] += 1
-	    if word in self.emoLex['fear']:
-		emoDict['fear'] += 1
-	    if word in self.emoLex['trust']:
-		emoDict['trust'] += 1
-	    if word in self.emoLex['sadness']:
-		emoDict['sadness'] += 1
-	    if word in self.emoLex['disgust']:
-		emoDict['disgust'] += 1
-	    if word in self.emoLex['anticipation']:
-		emoDict['anticipation'] += 1
-	    if word in self.emoLex['surprise']:
-		emoDict['surprise'] += 1
-	    if word in self.emoLex['joy']:
-		emoDict['joy'] += 1
+        if foundE == False:
+            return "No Emotion"
         return max(emoDict, key = emoDict.get)
 
 
@@ -718,7 +730,7 @@ class Chatbot:
 	    emotion = datum[1]
 	    val = datum[2]
 	    if val == '1':
-		self.emoLex[emotion].append(word)
+		self.emoLex[emotion].append(self.porter.stem(word))
 
     def distance(self, u, v):
       """Calculates a given distance function between vectors u and v"""
