@@ -62,8 +62,8 @@ class Chatbot:
       self.PositiveResponse = ["It seems like you enjoyed %s. Maybe I should see it some time.",
                                    "I'm so glad you liked %s. I like when people find things they like.",
                                    "Maybe we can watch %s together some time! After all, you liked it!",
-                                   "My father also likes %s",
-                                   "It's good to see that you found %s to be a good movie",
+                                   "My father also likes %s.",
+                                   "It's good to see that you found %s to be a good movie.",
                                "You think %s is a good movie. And I think you are a good person!"]
       self.StrongPositiveResponse = ["This must be the greatest movie in the world! You seem to absolutely love %s",
                                      "Hold the phone! I'm going to go see %s right now! Since you adored it so much!",
@@ -161,6 +161,8 @@ class Chatbot:
 		self.titleDict[name] = count #title with article, with year
 		if shortname:
 		    self.titleDict[shortname] = count #title without article, with year
+		    if shortname[-1] in '.,;!?':
+			self.titleDict[shortname[:-1]] = count
 
             count += 1;
 
@@ -385,7 +387,7 @@ class Chatbot:
                 return "There is a movie %s that fulfills your constraints. But I don't know if you will like it." % (self.titles[self.movFulfillsConstraints[0]][0])
         else:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
-            return movieSentimentResponse + " Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
+            return movieSentimentResponse + " Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommendations."
 
 
     #returns all the movie titles that were in the input
@@ -396,7 +398,8 @@ class Chatbot:
         movies = set([])
         input_list = input.split(' ')
 	input_list = [x for x in input_list if x != '']
-
+	#if input_list[-1][-1] in '.,;!?':
+	#    input_list[-1] = input_list[-1][:-1]
         possible_movies = []
 
         for i,word in enumerate(input_list):
@@ -404,14 +407,21 @@ class Chatbot:
                 sublists = [sublist for sublist in (input_list[i:i+length] for length in xrange(1,len(input_list)-i+1))]
 
                 possible_movies.extend(sublists)
+	#for movie in possible_movies:
+	#    movie = ' '.join(movie)
+	possible_movies = [' '.join(x) for x in possible_movies]
+
+	for movie in possible_movies:
+	    if movie[-1] in '.,;!?':
+		possible_movies.append(movie[:-1])
+
 	possible_movies.sort(key = len)
 	possible_movies = possible_movies[::-1]
+
         for movie in possible_movies:
-            movie = ' '.join(movie)
 
             if movie.lower() in self.lowerTitleDict:
-		movie_index = self.lowerTitleDict[movie.lower()]
-                movies.add(self.titles[movie_index][0])
+		movies.add(movie)
 
 	movies = list(movies)
 	movies.sort(key = len)
