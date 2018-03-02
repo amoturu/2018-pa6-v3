@@ -96,10 +96,9 @@ class Chatbot:
                               "I hate questions like \"%s\" They cause me to yearn for when you would tell me about movies."]
       self.SpecialStrongPositiveSentimentWords = ["love", "great", "amazing", "fantastic", "perfect", "incredible", "spectacular", "extraordinary", "marvelous", "awesome"]
       self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
-      self.sentimentBuilder()
       self.emotionResponseDictionary = {"anger" : ["You seem angry. I find that watching movies makes me feel less angry.",
                                                    "I'm detecting anger. Please don't hurt me.",
-                                                   "If you are angry, please drink a delicious diet coke and watch a movie",
+                                                   "If you are angry, please drink a delicious diet coke and watch a movie.",
                                                    "Don't be angry! You are beautiful."
                                                    "Being angry isn't fun, but helping me find the perfect movie for you is!"],
                                         'fear' : ["OMG are you in trouble. I'm detecting fear. Quickly, let's watch a movie so we aren't scared.",
@@ -525,21 +524,25 @@ class Chatbot:
 	emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
 	for word in input_list:
 	    if word in self.emoLex['anger']:
-		emoDict['anger'] += 1
+		emoDict['anger'] += 2
 	    if word in self.emoLex['fear']:
-		emoDict['fear'] += 1
+		emoDict['fear'] += 2
 	    if word in self.emoLex['trust']:
-		emoDict['trust'] += 1
-	    if word in self.emoLex['sadness']:
-		emoDict['sadness'] += 1
-	    if word in self.emoLex['disgust']:
-		emoDict['disgust'] += 1
-	    if word in self.emoLex['anticipation']:
-		emoDict['anticipation'] += 1
-	    if word in self.emoLex['surprise']:
-		emoDict['surprise'] += 1
-	    if word in self.emoLex['joy']:
+		emoDict['fear'] += 1
 		emoDict['joy'] += 1
+	    if word in self.emoLex['sadness']:
+		emoDict['sadness'] += 2
+	    if word in self.emoLex['disgust']:
+		emoDict['anger'] += 1
+		emoDict['sadness'] += 1
+	    if word in self.emoLex['anticipation']:
+		emoDict['anger'] += 1
+		emoDict['joy'] += 1
+	    if word in self.emoLex['surprise']:
+		emoDict['sadness'] += 1
+		emoDict['fear'] += 1
+	    if word in self.emoLex['joy']:
+		emoDict['joy'] += 2
         return max(emoDict, key = emoDict.get)
 
 
