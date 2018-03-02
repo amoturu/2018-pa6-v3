@@ -195,6 +195,150 @@ class Chatbot:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
             return movieSentimentResponse + "Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
 
+    def extractWithForeignTitles(self, input):
+        movies = re.findall("\"([^\"]*)\"", input)
+        if len(movies) == 0:
+            movies = self.extractUnquotedMovies(input)
+        if len(movies) != 1:
+            return "Please tell us about one movie"
+
+        movie = movies[0]
+
+        print self.findEmotion(input)
+
+        if movie not in self.titleDict:
+            if movie in self.alternateTitles:
+                movie = self.alternateTitles[movie]
+            else
+
+        #creates list of original titles and dict of alternate titles, still with years at end
+        for title in self.titles:
+            possible_titles = re.findall('(.*?) (?:\((?:a.k.a. )?(.*)\) )?\([0-9]{4}\)',title)
+            original_title = ' '.join([possible_titles[0],possible_titles[-1]])
+            if len(possible_titles) == 3:
+                alternate_title = ' '.join([possible_titles[1],possible_titles[2]])
+                self.alternateTitles[alternate_title] = title
+            self.originalTitles.append(original_title)
+
+
+            if movie in possible_titles:
+                movie = title
+                break
+
+        if movie not in possible_titles:
+            finalmovie = self.spellCheck(movie)
+            if !finalmovie:
+                return "We can't find that movie in our database. Perhaps you can tell us about another one"
+        if (self.countMovieRecs == 5):
+            return "Top Movie: " + str(self.ratingmovie()[0])
+        return movie + self.sentimentAnalysis(input, movie) + str(self.countMovieRecs)
+
+    #returns all the movie titles that were in the input
+    #searches for capitalized words or numbers for the beginning of a title
+    #makes a sublist of all the possible titles beginning with that word
+    #checks to see if any of the sublists are in our list of movies
+    def extractUnquotedMovies(self, input):
+        movies = []
+        input_list = input.split(' ')
+        possible_movies = []
+
+        for i,word in enumerate(input_list):
+            if word[0].isupper() or word[0] in '0123456789':
+                sublists = [sublist for sublist in (input_list[i:i+length] for length in xrange(1,len(input_list)-i+1))]
+
+                possible_movies.extend(sublists)
+
+        lowerTitleDict = [x.lower() for x in self.titleDict]
+        for movie in possible_movies:
+            movie = ' '.join(movie)
+            if movie.lower() in lowerTitleDict:
+                movies.append(movie)
+        if len(movies) == 0:
+            for movie in possible_movies:
+                movie = ' '.join(movie)
+                spellChecked = self.spellCheck(movie)
+                if spellChecked:
+                    movies.append(spellChecked)
+        return movies
+
+    #Returns the spell corrected movie title, or False if none were found
+    def spellCheck(self, movie):
+        #look at each word
+        #find titles with each word having edit distance less than 2
+        #returns the first fitting title found
+        given_words = movie.split(' ')
+        splitTitleDict = [x.split(' ') for x in self.titleDict]
+
+        #for each title in our title dict
+        for title_words in splitTitleDict:
+            possible_titles = re.findall('(.*?) (?:\((?:a.k.a. )?(.*)\) )?\([0-9]{4}\)',title)
+
+            #if the number of words doesn't match, move to next possible title
+            if len(given_words) != len(title_words):
+                continue
+
+            title = ' '.join(title_words)
+            #first assume movie is correct fit
+            goodMovie = True
+
+            for i,word in enumerate(given_words):
+                if goodMovie == False:
+                    continue
+                editDist = self.computeEditDistance(word,title_words[i])
+                #if any word is too different, move to next possible title.
+                if editDist > 2:
+                    goodMovie = False
+            #if all words were within reason, return the title
+            if goodMovie:
+                return title
+
+    def computeEditDistance(self,word1,word2):
+        compArray = np.zeros([len(word2)+1,len(word1)+1])
+        compArray[0] = xrange(0,len(word1)+1)
+        test1 = 0
+        test2 = 0
+        test3 = 0
+
+        rows = range(0,len(word2)+1)
+        cols = range(0,len(word1)+1)
+        #set up array correctly
+        for i in rows:
+            compArray[i][0] = i
+
+        for i in rows[:-1]:
+            for j in cols[:-1]:
+                test1 = compArray[i+1][j] + 1
+                test2 = compArray[i][j+1] + 1
+                test3 = compArray[i][j]
+                if word2[i] != word1[j]:
+                    test3 += 2
+
+                compArray[i+1][j+1] = min(test1,test2,test3)
+
+        return compArray[-1][-1]
+
+    def findEmotion(self, input):
+        angrywords = ['angry','anger','mad','furious','livid','irate','irritated','irritating','outraged','outrageous','seething','infuriated','incensed']
+        confusedwords = ['confused','confusing','n\'t understand','nt understand','not understand']
+        sadwords = ['sad','unhappy','grumpy','depressed','depressing']
+        if 'thank you' in input.lower() or 'thanks' in input.lower():
+            return 'No, thank you!'
+        if 'im sorry' in input.lower() or 'i\'m sorry' in input.lower():
+            return 'Don\'t apologize! Everyone is entitled to their own opinion.'
+
+        #formatted this way because some emotion keywords have spaces in them
+        for word in angrywords:
+            if word in input:
+                return 'If you are ever angry about something, why not tell me about a movie you enjoyed?'
+        for word in confusedwords:
+            if word in input:
+                return 'If you\'re confused about something, just tell me about a movie you\'ve enjoyed!'
+        for word in sadwords:
+            if word in input:
+                return 'When I\'m sad, I like to talk about my favorite movies. What was a movie you really enjoyed?'
+        return ''
+
+
     #if you have two genres that are equally top, then just picks arbitarily
     def getTopGenre(self):
       count = Counter(self.topgenres)
