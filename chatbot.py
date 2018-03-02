@@ -33,13 +33,18 @@ class Chatbot:
       #self.seekingMovie is meant to be true when looking for another movie recommendation from the user.
       #if the input does not contain another movie recommendation it will ask the user again for one.
       self.seekingMovie = False
-      self.binary = False
+      self.binary = True
       self.havelimitgenre = False
+      self.havelimityear = False
+      self.gotgenre = False
+      self.gotyear = False
       self.ratedmovies = {}
       self.titleDict = {}
       self.lowerTitleDict = {}
       self.topgenres = {}
+      self.movFulfillsConstraints = []
       self.limitgenre = ""
+      self.limityear = 0
       self.unratedmovies = []
       self.genres = ["Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance", "Drama", "Thriller", "Horror", "Action", "Sci-Fi", "Mystery", "Crime", "Documentary", "War", "Musical", "Western"]
       self.findNamesRegex = '(.*?) (?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(\([0-9]{4}-?(?:[0-9]{4})?\))'
@@ -52,6 +57,7 @@ class Chatbot:
       self.punctuationIndex = 0;
 
       self.gettinggenre = False
+      self.gettingyear = False
       # %sis replaced with movie title in responses
       self.PositiveResponse = ["It seems like you enjoyed %s. Maybe I should see it some time.",
                                    "I'm so glad you liked %s. I like when people find things they like.",
@@ -367,11 +373,16 @@ class Chatbot:
         movieSentimentResponse = self.sentimentAnalysis(input, movie)
         if (len(self.ratedmovies) >= 5):
             #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
-            if self.is_turbo == True:
+            if self.is_turbo == True and self.gotgenre == False:
               self.gettinggenre = True
-              return "Would you like to limit your genre?"
+              return "Would you like to limit your genre?"              
             else:
-              return "Ok! Right now I'm detecting your top movie as: " + str(self.ratingmovie()[0])
+              if len(self.ratingmovie()) > 0:
+                return "I detect the top movie to be %s" % str(self.ratingmovie()[0])
+              elif len(self.movFulfillsConstraints) == 0:
+                return "Unfortunately, I don't know of any movie that fulfills all the constraints."
+              else: 
+                return "There is a movie %s that fulfills your constraints. But I don't know if you will like it." % (self.titles[self.movFulfillsConstraints[0]][0])
         else:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
             return movieSentimentResponse + " Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
@@ -512,14 +523,37 @@ class Chatbot:
         self.limitgenre = input.capitalize()
         self.havelimitgenre = True
         self.gettinggenre = False
-        return "Ok. I will limit your genre to %s. I detect the top movie to be %s" % (self.limitgenre, str(self.ratingmovie()[0]))
+        self.gettingyear = True
+        self.gotgenre = True
+        return "Ok. I will limit your genre to %s. Would you like the limit the year of the movie?" % self.limitgenre
       elif input.lower() == "no" or input.lower() == "n" or input.lower() == "nah" or input.lower() == "no thanks":
         self.gettinggenre = False
-        return "Ok! Right now I'm detecting your top movie as: " + str(self.ratingmovie()[0])
+        self.gettingyear = True
+        return "Ok! I won't limit your genre. Would you like to limit the year of the movie?"
       else:
         return "Sorry! I don't think I understand. If you dont want to limit genre, please say no. Otherwise, type the genre. If you want options, type options."
 
-
+    def getYear(self,input):
+      if input.lower() == "yes" or input.lower() == "y":
+        return "What decade would you like to limit it to?"
+      elif input.lower() == "no" or input.lower() == "n" or input.lower() == "nah" or input.lower() == "no thanks":
+        return "Ok. I won't limit to a year range. I think the next movie you should see is " + str(self.ratingmovie()[0])
+      elif input.isdigit() and (int(input) > 2018 or int(input) < 1900):
+        return "We don't have any movies for that decade. Please try again with another year."
+      elif input.isdigit():
+        self.havelimityear = True 
+        self.gettingyear = False
+        self.gotyear = True
+        #gets first three numbers of the year
+        self.limityear = int(int(input)/10)
+        if len(self.ratingmovie()) > 0:
+          return "Ok, I will limit your decade to %ss. I detect the top movie to be %s" % (str(self.limityear*10), str(self.ratingmovie()[0]))
+        elif len(self.movFulfillsConstraints) == 0:
+          return "Unfortunately, I don't know of any movie that fulfills all the constraints."
+        else: 
+          return "There is a movie %s that fulfills your constraints. But I don't know if you will like it." % (self.titles[self.movFulfillsConstraints[0]][0])
+      else:
+        return "I don't think you inputted a valid year. Please try again."
     def process(self, input):
       """Takes the input string from the REPL and call delegated functions
       that
@@ -535,6 +569,8 @@ class Chatbot:
 
       if self.gettinggenre == True:
         response = self.getGenre(input)
+      elif self.gettingyear == True:
+        response = self.getYear(input)
       else:
         response = self.extractMovie(input)
 
@@ -673,20 +709,34 @@ class Chatbot:
         self.unratedmovies = list(set(xrange(0, len(self.titles))) - set(self.ratedmovies.keys()))
 
         #if you are limiting the genres even further based on the limiting genre
-
-
+        randregex = "(.*?) (?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(\([0-9]{4}-?(?:[0-9]{4})?\))"
+      
+        # will give you title if no year for movie
         for unratedmov in self.unratedmovies:
             if (self.havelimitgenre and len(self.limitgenre) != 0 and self.limitgenre in str(self.titles[unratedmov][1])) or (self.havelimitgenre == False):
-              rating = 0
-              for ratedmov in self.ratedmovies:
-                  if self.binary:
-                    dist = self.distance(self.binarized[unratedmov], self.binarized[ratedmov])
-                  else:
-                    dist = self.distance(self.meancentered[unratedmov], self.meancentered[ratedmov])
-                  rating += dist * self.ratedmovies[ratedmov]
-              if rating > highestrating:
-                  highestrating = rating
-                  topmovie = self.titles[unratedmov]
+              # print self.titles[unratedmov][0]
+              matches = re.findall(randregex, self.titles[unratedmov][0])
+              if len(matches) > 0:
+                year = matches[len(matches) -1]
+                actualyear = year[len(year)-1]
+                actualyear = actualyear.replace("(", "")
+                actualyear = actualyear.replace(")", "")
+                # print actualyear
+                if (self.havelimityear and self.limityear != 0 and actualyear.isdigit() and int(int(actualyear)/10) == self.limityear) or (self.havelimityear == False):
+                  self.movFulfillsConstraints.append(unratedmov)
+                  # print "setting rating"
+                  rating = 0
+                  for ratedmov in self.ratedmovies:
+                      if self.binary:
+                        dist = self.distance(self.binarized[unratedmov], self.binarized[ratedmov])
+                      else:
+                        dist = self.distance(self.meancentered[unratedmov], self.meancentered[ratedmov])
+                      rating += dist * self.ratedmovies[ratedmov]
+                  # print rating
+                  if rating > highestrating:
+                      # print "setting highestrating"
+                      highestrating = rating
+                      topmovie = self.titles[unratedmov]
         return topmovie
 
     #############################################################################
@@ -709,7 +759,20 @@ class Chatbot:
       Your task is to implement the chatbot as detailed in the PA6 instructions.
       Remember: in the starter mode, movie names will come in quotation marks and
       expressions of sentiment will be simple!
-      Write here the description for your own chatbot!
+      Creative features that were implemented and listed in the rubric: Identifying movies 
+      without quotation marks or perfect capitalization, Fine-grained sentiment 
+      extraction, Spell-checking movie titles, Responding to arbitrary input, Speaking 
+      very fluently, Using non-binarized dataset, Alternate/foreign titles. 
+      For the creative mode, we implemented used the non-binarized dataset. We 
+      noticed that user mean centering was more successful than item mean centering.
+      We still use item-item collaborative filtering. 
+      Another feature that we implemented is limiting by genre. It outputs the users
+      main genre and asks what genre to limit the output by.
+      Another feature is limiting by year. We take both genre and year into account. 
+      If there is a movie that fulfills the constraints, but we do not know whether
+      the user will like the movie (ie no ratings in the movie, or one rating after
+      we mean center becomes all zeros), we output that it fulfills the constraints, 
+      but they might or might not like the movie.
       """
 
 
