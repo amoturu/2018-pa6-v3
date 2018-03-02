@@ -75,12 +75,13 @@ class Chatbot:
       self.StrongNegativeResponse = ["%s is disgusting! I won't see it and never put yourself through the pain of watching it again!",
                                      "I should find the director and let him know he is a failure! Because you hated %s",
                                      "Because of you, %s is no longer considered a movie in my eyes but rather a pile of garbage.",
-                                     "The thought of %s lack of entertainment value makes me want to cry. I'm sorry you hated it"]
+                                     "The thought of %s's lack of entertainment value makes me want to cry. I'm sorry you hated it",
+                                     "%s should be played on repeat in hell. You hate that movie, so bad people must watch it."]
 
       self.NegativeResponse = ["Remind me to not see %s since you seem not to have liked it.",
                                        "I'm sorry that you didn't like %s.",
                                        "I also didn't like %s.",
-                               "I'll make sure to never see %s. Since you didn't like it!",
+                               "I'll try not to see %s. Since you didn't like it.",
                                "If you don't like %s, then I don't like it either."]
       self.ArbitraryInputResponses = ["You don't seem to be talking about a movie. Why don't we talk about a movie?",
                                       "I really only enjoy talking about movies. It is kind of my destiny",
@@ -95,7 +96,31 @@ class Chatbot:
                               "I hate questions like \"%s\" They cause me to yearn for when you would tell me about movies."]
       self.SpecialStrongPositiveSentimentWords = ["love", "great", "amazing", "fantastic", "perfect", "incredible", "spectacular", "extraordinary", "marvelous", "awesome"]
       self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
-      # self.sentimentBuilder()
+      self.sentimentBuilder()
+      self.emotionResponseDictionary = {"anger" : ["You seem angry. I find that watching movies makes me feel less angry.",
+                                                   "I'm detecting anger. Please don't hurt me.",
+                                                   "If you are angry, please drink a delicious diet coke and watch a movie",
+                                                   "Don't be angry! You are beautiful."
+                                                   "Being angry isn't fun, but helping me find the perfect movie for you is!"],
+                                        'fear' : ["OMG are you in trouble. I'm detecting fear. Quickly, let's watch a movie so we aren't scared.",
+                                                  "If you are fearful, don't be. I'm here.",
+                                                  "Fear is the only thing to be scared of. Oh no, you seem to have fear. Forget that I said that.",
+                                                  "I don't feel fear, but you seem to.",
+                                                  "Fear is an illusion. So why are you feeling fear? Who cares? Just tell me about movies."],
+                                        'trust':["You seem to be talking about trust. Is this because you don't trust my movie recommendations? Nevermind just let me prove myself.",
+                                                 "My lover has trust issues. Please stop talking about trust. It reminds me.",
+                                                 "Why are you talking about trust? Talk about movies. That is all that matters to us.",
+                                                 "Trust is overrated. Movies should be rated.",
+                                                 "Let's get back to talking about movies. I don't know why you are taling about trust."],
+                                        'sadness':["Please don't talk about sad things. Just talk about movies! Movies are life.",
+                                                   "Sadness is a sad emotion. Maybe talking about movies will make you seem less sad.",
+                                                   "Don't talk about sad things. Be excited to talk about movies.",
+                                                   "Sadness is overrated. Stop talking about sad things. Talk about movies.",
+                                                   "Cry me a river is a song. I'm thinking about it because you are talking about sad things and not movies."],
+                                        'disgust':[],
+                                        'anticipation':[],
+                                        'surprise':[],
+                                        'joy':[]}
 
 
 
@@ -183,8 +208,8 @@ class Chatbot:
         for i in xrange(0, len(self.SpecialStrongPositiveSentimentWords)):
             self.SpecialStrongPositiveSentimentWords[i] = self.porter.stem(self.SpecialStrongPositiveSentimentWords[i])
 
-        for i in xrange(0, len(self.SpecialStrongNegativeSentimentWords)):
-            self.SpecialStrongNegativeSentimentWords[i] = self.porter.stem(self.SpecialStrongNegativeSentimentWords)
+        for j in xrange(0, len(self.SpecialStrongNegativeSentimentWords)):
+            self.SpecialStrongNegativeSentimentWords[j] = self.porter.stem(self.SpecialStrongNegativeSentimentWords[j])
         # print self.positiveSet
 
     def handleAllArticles(self, name):
@@ -304,10 +329,10 @@ class Chatbot:
             self.extractGenres(self.titles[self.titleDict[movie]][1])
             movieResponse = self.NegativeResponse[np.random.randint(0, len(self.NegativeResponse))]%movie
             if (negativeScore - positiveScore >= 5):
-                movieResponse = self.StrongNegativeResponse[np.random.randint(0, len(self.StrongNegativeResponse))]
+                movieResponse = self.StrongNegativeResponse[np.random.randint(0, len(self.StrongNegativeResponse))]%movie
             return movieResponse
         if (positiveScore == 0 and negativeScore == 0) or (positiveScore == negativeScore):
-            return "I'm sorry but I can't tell what you think about %s. Tell me how you feel about %s? " % (movie, movie)
+            return "I'm sorry but I can't tell what you think about %s. Talk about %s more." % (movie, movie)
 
 
     def extractGenres(self, input):
@@ -378,14 +403,14 @@ class Chatbot:
             #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
             if self.is_turbo == True and self.gotgenre == False:
               self.gettinggenre = True
-              return "Would you like to limit your genre?"              
+              return movieSentimentResponse + " Would you like to limit your genre?"
             else:
               if len(self.ratingmovie()) > 0:
-                return "I detect the top movie to be %s" % str(self.ratingmovie()[0])
+                return movieSentimentResponse + " Also, I detect the top movie to be %s" % str(self.ratingmovie()[0])
               elif len(self.movFulfillsConstraints) == 0:
-                return "Unfortunately, I don't know of any movie that fulfills all the constraints."
+                return movieSentimentResponse + " Also, unfortunately, I don't know of any movie that fulfills all the constraints."
               else: 
-                return "There is a movie %s that fulfills your constraints. But I don't know if you will like it." % (self.titles[self.movFulfillsConstraints[0]][0])
+                return movieSentimentResponse + " Also, There is a movie %s that fulfills your constraints. But I don't know if you will like it." % (self.titles[self.movFulfillsConstraints[0]][0])
         else:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
             return movieSentimentResponse + " Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommendations."
