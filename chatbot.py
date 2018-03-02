@@ -9,6 +9,8 @@ import csv
 import math
 import re
 import copy
+import collections
+from collections import Counter
 
 #add in PorterStemmer from assignment 3/4
 from PorterStemmer import PorterStemmer
@@ -31,16 +33,25 @@ class Chatbot:
       #self.seekingMovie is meant to be true when looking for another movie recommendation from the user.
       #if the input does not contain another movie recommendation it will ask the user again for one.
       self.seekingMovie = False
+      self.binary = False
+      self.havelimitgenre = False
       self.ratedmovies = {}
       self.titleDict = {}
+<<<<<<< HEAD
       self.titleDict
+=======
+      self.topgenres = {}
+      self.limitgenre = ""
+>>>>>>> 9b37d64bce3e723e9263bce7bb41c9ee2dbb3ee8
       self.unratedmovies = []
+      self.genres = ["Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance", "Drama", "Thriller", "Horror", "Action", "Sci-Fi", "Mystery", "Crime", "Documentary", "War", "Musical", "Western"]
       # self.binarized = []
       self.read_data()
       self.porter = PorterStemmer()
       self.positiveSet = set()
       self.negativeSet = set()
       self.sentimentBuilder()
+      self.gettinggenre = False
       # %sis replaced with movie title in responses
       self.PositiveResponse = ["It seems like you enjoyed %s. Maybe I should see it some time.",
                                    "Wow! I'm so glad you enjoyed %s. I love when people find things they like.",
@@ -147,37 +158,72 @@ class Chatbot:
                 negativeScore += 1
         if positiveScore > negativeScore:
             self.ratedmovies[self.titleDict[movie]] = 1;
+            self.extractGenres(self.titles[self.titleDict[movie]][1])
             movieResponse = self.PositiveResponse[np.random.randint(0, len(self.PositiveResponse))]%movie
             return movieResponse
         if negativeScore > positiveScore:
             self.ratedmovies[self.titleDict[movie]] = -1;
+            self.extractGenres(self.titles[self.titleDict[movie]][1])
             movieResponse = self.NegativeResponse[np.random.randint(0, len(self.NegativeResponse))]%movie
             return movieResponse
         if (positiveScore == 0 and negativeScore == 0) or (positiveScore == negativeScore):
             return "I'm sorry but I can't tell what you think about %s. Did you like %s? " % (movie, movie)
 
 
+    def extractGenres(self, input):
+      currentMovieGenres = input.split("|")
+      for gen in currentMovieGenres:
+        self.topgenres[gen] = self.topgenres.get(gen, 0) + 1
 
     def extractMovie(self, input):
         movies = re.findall("\"([^\"]*)\"", input)
         if len(movies) == 0:
+<<<<<<< HEAD
             if(self.is_turbo):
                 return "HELLO"
             return "I can't seem to find a movie in your remark"
+=======
+          return "Could you please tell me about a movie that you watched?"
+>>>>>>> 9b37d64bce3e723e9263bce7bb41c9ee2dbb3ee8
         if len(movies) > 1:
             return "Right now I'm detecting multiple movies. Please only tell me one movie!"
         movie = movies[0]
         if movie not in self.titleDict:
             return "We can't find that movie in our database. Perhaps you can tell us about another one."
         movieSentimentResponse = self.sentimentAnalysis(input, movie)
-        if (len(self.ratedmovies) > 4):
+        if (len(self.ratedmovies) >= 5):
             #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
-            return "Right now I'm detecting your top movie as: " + str(self.ratingmovie()[0])
+            if self.is_turbo == True:
+              self.gettinggenre = True
+              return "Would you like to limit your genre?"
+            else:
+              return "Ok! Right now I'm detecting your top movie as: " + str(self.ratingmovie()[0])
         else:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
             return movieSentimentResponse + "Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
 
+    #if you have two genres that are equally top, then just picks arbitarily
+    def getTopGenre(self):
+      count = Counter(self.topgenres)
+      for k, v in count.most_common(1):
+        return k
 
+
+    def getGenre(self, input):
+      if input.lower() == "yes" or input.lower() == "y":
+        return "What genre do you want to limit it to? Your top genre is %s. If you want other genres, type options." % self.getTopGenre()
+      elif input.lower() == "options":
+        return "The options are Adventure, Animation, Children, Comedy, Fantasy, Romance, Drama, Thriller, Horror, Action, Sci-Fi, Mystery, Crime, Documentary, War, Musical, and Western. Whew that was a mouthful."
+      elif input.capitalize() in self.genres:
+        self.limitgenre = input.capitalize()
+        self.havelimitgenre = True
+        self.gettinggenre = False
+        return "Ok. I will limit your genre to %s. I detect the top movie to be %s" % (self.limitgenre, str(self.ratingmovie()[0]))
+      elif input.lower() == "no" or input.lower() == "n" or input.lower() == "nah" or input.lower() == "no thanks":
+        self.gettinggenre = False
+        return "Ok! Right now I'm detecting your top movie as: " + str(self.ratingmovie()[0])
+      else:
+        return "Sorry! I don't think I understand. If you dont want to limit genre, please say no. Otherwise, type the genre. If you want options, type options."
 
 
     def process(self, input):
@@ -193,7 +239,11 @@ class Chatbot:
       #############################################################################
       response = "no response"
 
-      response = self.extractMovie(input)
+      if self.gettinggenre == True:
+        response = self.getGenre(input)
+      else:
+        response = self.extractMovie(input)
+
 
       return response
 
@@ -226,7 +276,10 @@ class Chatbot:
       # movie i by user j
       self.titles, self.ratings = ratings()
       self.handleArticles();
-      self.binarize()
+      if self.binary:
+        self.binarize()
+      else:
+        self.meancenter()
 
 
 
@@ -238,21 +291,40 @@ class Chatbot:
       #-1 if less than mean
       #0 if no ratings
       #+1 if greater than means
-      # self.binarized = self.ratings
 
       self.binarized = copy.copy(self.ratings)
       for row in range(0, len(self.ratings)):
           rate = self.ratings[row]
-          nonzerorates = rate[rate != 0]
-          if len(nonzerorates) != 0:
-            mean = rate[rate != 0].mean()
-            zerocentered = rate
-            for i in range(0,len(zerocentered)):
-                if zerocentered[i] != 0:
-                    zerocentered[i] -= mean
-            binarized = [np.sign(x) for x in zerocentered]
-            self.binarized[row] = binarized
+          if len(rate[rate != 0]) > 0:
+            mean = float(np.sum(rate[rate > 0]))/rate[rate > 0].size
+            rate[rate > 0] -= mean
+            self.binarized[row] = [np.sign(x) for x in rate]
 
+    #item-item mean centered
+    def meancenter(self):
+      self.meancentered = copy.copy(self.ratings)
+      #go through all of the users
+      #calculate the mean for the user
+      #replace all of the values
+      for row in range(0, len(self.ratings)):
+          rate = self.ratings[row]
+          if len(rate[rate != 0]) > 0:
+            mean = float(np.sum(rate[rate > 0]))/rate[rate > 0].size
+            rate[rate > 0] -= mean
+            self.meancentered[row] = rate
+
+    #user-user mean centered
+    def meancenter2(self):
+      self.meancentered = copy.copy(self.ratings)
+
+      for userCol in range(0, len(self.ratings[0])):
+        column = np.array(self.meancentered[:,userCol])
+        # print column
+        if len(column[column != 0]) > 0:
+          mean = float(np.sum(column[column > 0]))/column[column > 0].size
+          column[column > 0] -= mean
+          for movieRow in range(0, len(self.ratings)):
+            self.meancentered[movieRow][userCol] = column[movieRow]
 
     def distance(self, u, v):
       """Calculates a given distance function between vectors u and v"""
@@ -280,14 +352,22 @@ class Chatbot:
         topmovie = ""
         # subtracts all movies indexes with movies that we've seen to only have unrated movie indexes
         self.unratedmovies = list(set(xrange(0, len(self.titles))) - set(self.ratedmovies.keys()))
+
+        #if you are limiting the genres even further based on the limiting genre
+
+
         for unratedmov in self.unratedmovies:
-            rating = 0
-            for ratedmov in self.ratedmovies:
-                dist = self.distance(self.binarized[unratedmov], self.binarized[ratedmov])
-                rating += dist * self.ratedmovies[ratedmov]
-            if rating > highestrating:
-                highestrating = rating
-                topmovie = self.titles[unratedmov]
+            if (self.havelimitgenre and len(self.limitgenre) != 0 and self.limitgenre in str(self.titles[unratedmov][1])) or (self.havelimitgenre == False):
+              rating = 0
+              for ratedmov in self.ratedmovies:
+                  if self.binary:
+                    dist = self.distance(self.binarized[unratedmov], self.binarized[ratedmov])
+                  else:
+                    dist = self.distance(self.meancentered[unratedmov], self.meancentered[ratedmov])
+                  rating += dist * self.ratedmovies[ratedmov]
+              if rating > highestrating:
+                  highestrating = rating
+                  topmovie = self.titles[unratedmov]
         return topmovie
 
     #############################################################################
