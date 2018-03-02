@@ -766,7 +766,8 @@ class Chatbot:
       Creative features that were implemented and listed in the rubric: Identifying movies 
       without quotation marks or perfect capitalization, Fine-grained sentiment 
       extraction, Spell-checking movie titles, Responding to arbitrary input, Speaking 
-      very fluently, Using non-binarized dataset, Alternate/foreign titles. 
+      very fluently, Using non-binarized dataset, Alternate/foreign titles, 
+      Identifying and responding to emotions (through unrelated non-movie inputs). 
       For the creative mode, we implemented used the non-binarized dataset. We 
       noticed that user mean centering was more successful than item mean centering.
       We still use item-item collaborative filtering. 
