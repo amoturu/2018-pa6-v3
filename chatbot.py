@@ -79,7 +79,7 @@ class Chatbot:
       self.NegativeResponse = ["Remind me to not see %s since you seem not to have liked it.",
                                        "I'm sorry that you didn't like %s",
                                        "I also didn't like %s",
-                               "I'll make sure to never see %s. Since you didn't like it!",
+                               "I'll try not to see %s. Since you didn't like it.",
                                "If you don't like %s, then I don't like it either."]
       self.ArbitraryInputResponses = ["You don't seem to be talking about a movie. Why don't we talk about a movie?",
                                       "I really only enjoy talking about movies. It is kind of my destiny",
@@ -202,8 +202,8 @@ class Chatbot:
         for i in xrange(0, len(self.SpecialStrongPositiveSentimentWords)):
             self.SpecialStrongPositiveSentimentWords[i] = self.porter.stem(self.SpecialStrongPositiveSentimentWords[i])
 
-        for i in xrange(0, len(self.SpecialStrongNegativeSentimentWords)):
-            self.SpecialStrongNegativeSentimentWords[i] = self.porter.stem(self.SpecialStrongNegativeSentimentWords)
+        for j in xrange(0, len(self.SpecialStrongNegativeSentimentWords)):
+            self.SpecialStrongNegativeSentimentWords[j] = self.porter.stem(self.SpecialStrongNegativeSentimentWords[j])
         # print self.positiveSet
 
     def handleAllArticles(self, name):
@@ -317,14 +317,14 @@ class Chatbot:
             movieResponse = self.PositiveResponse[np.random.randint(0, len(self.PositiveResponse))]%movie
             if (positiveScore - negativeScore >= 5):
                 movieResponse = self.StrongPositiveResponse[np.random.randint(0, len(self.StrongPositiveResponse))]%movie
-            return movieResponse%movie
+            return movieResponse
         if negativeScore > positiveScore:
             self.ratedmovies[self.titleDict[movie]] = -1;
             self.extractGenres(self.titles[self.titleDict[movie]][1])
             movieResponse = self.NegativeResponse[np.random.randint(0, len(self.NegativeResponse))]%movie
             if (negativeScore - positiveScore >= 5):
-                movieResponse = self.StrongNegativeResponse[np.random.randint(0, len(self.StrongNegativeResponse))]
-            return movieResponse%movie
+                movieResponse = self.StrongNegativeResponse[np.random.randint(0, len(self.StrongNegativeResponse))]%movie
+            return movieResponse
         if (positiveScore == 0 and negativeScore == 0) or (positiveScore == negativeScore):
             return "I'm sorry but I can't tell what you think about %s. Talk about %s more." % (movie, movie)
 
