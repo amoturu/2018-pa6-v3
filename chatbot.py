@@ -37,10 +37,12 @@ class Chatbot:
       self.havelimitgenre = False
       self.ratedmovies = {}
       self.titleDict = {}
+      self.lowerTitleDict = {}
       self.topgenres = {}
       self.limitgenre = ""
       self.unratedmovies = []
       self.genres = ["Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance", "Drama", "Thriller", "Horror", "Action", "Sci-Fi", "Mystery", "Crime", "Documentary", "War", "Musical", "Western"]
+      self.findNamesRegex = '(.*?) (?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(\([0-9]{4}-?(?:[0-9]{4})?\))'
       # self.binarized = []
       self.read_data()
       self.porter = PorterStemmer()
@@ -111,8 +113,36 @@ class Chatbot:
         file = open("data/sentiment.txt", "r")
         count = 0
         for x in self.titles:
-            self.titleDict[x[0]] = count;
+            self.titleDict[x[0]] = count
+	    #print x[0]
+
+	    #gets the original title and all alternate titles (and the year)
+	    all_names = re.findall(self.findNamesRegex,x[0])
+	    #print all_names
+	    if all_names:
+	        all_names = list(all_names[0])
+	    else:
+		all_names = [x[0],'']
+	    for name in all_names[:-1]:
+		name, shortname = self.handleAllArticles(name)
+
+		if name == '':
+		    continue
+
+		self.titleDict[name] = count #title with article, without year
+		if shortname:
+		    self.titleDict[shortname] = count #title w/o article, w/o year
+
+		name = ' '.join([name,all_names[-1]])
+		self.titleDict[name] = count #title with article, with year
+		if shortname:
+		    self.titleDict[shortname] = count #title without article, with year
+
             count += 1;
+
+	# Creates self.lowerTitleDict
+	for key in self.titleDict:
+	    self.lowerTitleDict[key.lower()] = self.titleDict[key]
 
         for line in file.readlines():
             lineInfo = line.split(",")
@@ -123,6 +153,27 @@ class Chatbot:
             if evaluation == "neg":
                 self.negativeSet.add(self.porter.stem(word))
         # print self.positiveSet
+
+    def handleAllArticles(self, name):
+	shortname = ''
+	#Move articles to front
+	if name[-5:] in [', The',', Los',', Las',', Les',', Det',', Der',', Die',', Das',', Den',', Une']:
+	    article = name[-3:]
+	    shortname = name[:-5]
+	    name = article + ' ' + shortname
+	elif name[-4:] in [', An',', El',', En',', Un',', Le',', La',', Lo',', De',', Il']:
+	    article = name[-2:]
+	    shortname = name[:-4]
+	    name = article + ' ' + shortname
+	elif name[-3:] in [', A',', I']:
+	    article = name[-1:]
+	    shortname = name[:-3]
+	    name = article + ' ' + shortname
+	elif name[-4:] == ', L\'':
+	    shortname = name[:-4]
+	    name = 'L\'' + shortname
+
+	return (name,shortname)
 
     def updateNegationFlag(self, negationFlag, word):
         negativeWordSet = set(["not", "never"])
@@ -174,6 +225,7 @@ class Chatbot:
 
     def extractMovie(self, input):
         movies = re.findall("\"([^\"]*)\"", input)
+	#movie = self.extractWithForeignTitles(input)
         if len(movies) == 0:
             if(self.is_turbo):
                 movies = self.extractUnquotedMovies(input)
@@ -186,13 +238,20 @@ class Chatbot:
         if len(movies) > 1:
             return "Right now I'm detecting multiple movies. Please only tell me one movie!"
         movie = movies[0]
-        if movie not in self.titleDict:
+	
+	if movie.lower() in self.lowerTitleDict:
+	        movie_index = self.lowerTitleDict[movie.lower()]
+	        movie = self.titles[movie_index][0]
+	else:
+#        if movie not in self.titleDict:
             if (self.is_turbo):
                 movie = self.spellCheck(movie)
                 if movie == None:
                     return "We can't find that movie in our database. Perhaps you can tell us about another one."
             else:
                 return "We can't find that movie in our database. Perhaps you can tell us about another one."
+	movie_names = re.findall(self.findNamesRegex,movie)
+	movie,_ = self.handleAllArticles(movie_names[0][0])
         movieSentimentResponse = self.sentimentAnalysis(input, movie)
         if (len(self.ratedmovies) >= 5):
             #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
@@ -205,52 +264,16 @@ class Chatbot:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
             return movieSentimentResponse + "Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
 
-    def extractWithForeignTitles(self, input):
-        movies = re.findall("\"([^\"]*)\"", input)
-        if len(movies) == 0:
-            movies = self.extractUnquotedMovies(input)
-        if len(movies) != 1:
-            return "Please tell us about one movie"
-
-        movie = movies[0]
-
-        print self.findEmotion(input)
-
-        if movie not in self.titleDict:
-            if movie in self.alternateTitles:
-                movie = self.alternateTitles[movie]
-            else:
-                pass
-
-        #creates list of original titles and dict of alternate titles, still with years at end
-        for title in self.titles:
-            possible_titles = re.findall('(.*?) (?:\((?:a.k.a. )?(.*)\) )?\([0-9]{4}\)',title)
-            original_title = ' '.join([possible_titles[0],possible_titles[-1]])
-            if len(possible_titles) == 3:
-                alternate_title = ' '.join([possible_titles[1],possible_titles[2]])
-                self.alternateTitles[alternate_title] = title
-            self.originalTitles.append(original_title)
-
-
-            if movie in possible_titles:
-                movie = title
-                break
-
-        if movie not in possible_titles:
-            finalmovie = self.spellCheck(movie)
-            if not finalmovie:
-                return "We can't find that movie in our database. Perhaps you can tell us about another one"
-        if (self.countMovieRecs == 5):
-            return "Top Movie: " + str(self.ratingmovie()[0])
-        return movie + self.sentimentAnalysis(input, movie) + str(self.countMovieRecs)
 
     #returns all the movie titles that were in the input
     #searches for capitalized words or numbers for the beginning of a title
     #makes a sublist of all the possible titles beginning with that word
     #checks to see if any of the sublists are in our list of movies
     def extractUnquotedMovies(self, input):
-        movies = []
+        movies = set([])
         input_list = input.split(' ')
+	input_list = [x for x in input_list if x != '']
+
         possible_movies = []
 
         for i,word in enumerate(input_list):
@@ -258,28 +281,32 @@ class Chatbot:
                 sublists = [sublist for sublist in (input_list[i:i+length] for length in xrange(1,len(input_list)-i+1))]
 
                 possible_movies.extend(sublists)
-
-        lowerTitleDict = [x.lower() for x in self.titleDict]
+	possible_movies.sort(key = len)
+	possible_movies = possible_movies[::-1]
         for movie in possible_movies:
             movie = ' '.join(movie)
-            if movie.lower() in lowerTitleDict:
-                movies.append(movie)
-                return movies
-        if len(movies) == 0:
-            for movie in possible_movies:
-                movie = ' '.join(movie)
-                spellChecked = self.spellCheck(movie)
-                if spellChecked:
-                    movies.append(spellChecked)
-        return movies
+
+            if movie.lower() in self.lowerTitleDict:
+		movie_index = self.lowerTitleDict[movie.lower()]
+                movies.add(self.titles[movie_index][0])
+
+	movies = list(movies)
+	movies.sort(key = len)
+	movies = movies[::-1]
+	#print movies
+	if movies:
+            return [movies[0]]
+	else:
+	    return []
 
     #Returns the spell corrected movie title, or False if none were found
     def spellCheck(self, movie):
         #look at each word
         #find titles with each word having edit distance less than 2
         #returns the first fitting title found
+	movie = movie.lower()
         given_words = movie.split(' ')
-        splitTitleDict = [x.split(' ') for x in self.titleDict]
+        splitTitleDict = [x.split(' ') for x in self.lowerTitleDict]
 
         #for each title in our title dict
         for title_words in splitTitleDict:
@@ -302,7 +329,8 @@ class Chatbot:
                     goodMovie = False
             #if all words were within reason, return the title
             if goodMovie:
-                return title
+		movie_index = self.lowerTitleDict[title]
+                return self.titles[movie_index][0]
         return None
 
     def computeEditDistance(self,word1,word2):
@@ -330,6 +358,7 @@ class Chatbot:
 
         return compArray[-1][-1]
 
+    #returns the emotion the person is likely feeling. Still need good words though.
     def findEmotion(self, input):
         angrywords = ['angry','anger','mad','furious','livid','irate','irritated','irritating','outraged','outrageous','seething','infuriated','incensed']
         confusedwords = ['confused','confusing','n\'t understand','nt understand','not understand']
@@ -339,17 +368,36 @@ class Chatbot:
         if 'im sorry' in input.lower() or 'i\'m sorry' in input.lower():
             return 'Don\'t apologize! Everyone is entitled to their own opinion.'
 
+	emoDict = {'anger':0,'fear':0,'trust':0,'sad':0,'disgust':0,'anticip':0,'surprise':0,'joy':0}
+
+	for word in input:
+	    if word in angrywords:
+		emoDict['anger'] += 1
+	    if word in fearwords:
+		emoDict['fear'] += 1
+	    if word in trustwords:
+		emoDict['trust'] += 1
+	    if word in sadwords:
+		emoDict['sad'] += 1
+	    if word in disgustwords:
+		emoDict['disgust'] += 1
+	    if word in anticipwords:
+		emoDict['anticip'] += 1
+	    if word in surprisewords:
+		emoDict['surprise'] += 1
+	    if word in joywords:
+		emoDict['joy'] += 1
         #formatted this way because some emotion keywords have spaces in them
-        for word in angrywords:
-            if word in input:
-                return 'If you are ever angry about something, why not tell me about a movie you enjoyed?'
-        for word in confusedwords:
-            if word in input:
-                return 'If you\'re confused about something, just tell me about a movie you\'ve enjoyed!'
-        for word in sadwords:
-            if word in input:
-                return 'When I\'m sad, I like to talk about my favorite movies. What was a movie you really enjoyed?'
-        return ''
+#        for word in angrywords:
+#            if word in input:
+#                return 'If you are ever angry about something, why not tell me about a movie you enjoyed?'
+#        for word in confusedwords:
+#            if word in input:
+#                return 'If you\'re confused about something, just tell me about a movie you\'ve enjoyed!'
+#        for word in sadwords:
+#            if word in input:
+#                return 'When I\'m sad, I like to talk about my favorite movies. What was a movie you really enjoyed?'
+        return max(emoDict, key = emoDict.get)
 
 
     #if you have two genres that are equally top, then just picks arbitarily
@@ -402,18 +450,18 @@ class Chatbot:
     # 3. Movie Recommendation helper functions                                  #
     #############################################################################
 
-    def handleArticles(self):
-        for i in range(0, len(self.titles)):
-            title = self.titles[i][0]
-            if ", The (" in title:
-                title = title.replace(", The (", " (")
-                self.titles[i][0] = "The " + title
-            elif ", An (" in title:
-                title = title.replace(", An (", " (")
-                self.titles[i][0] = "An " + title
-            elif ", A (" in title:
-                title = title.replace(", A (", " (")
-                self.titles[i][0] = "A " + title
+#    def handleArticles(self):
+#        for i in range(0, len(self.titles)):
+#            title = self.titles[i][0]
+#            if ", The (" in title:
+#                title = title.replace(", The (", " (")
+#                self.titles[i][0] = "The " + title
+#            elif ", An (" in title:
+#                title = title.replace(", An (", " (")
+#                self.titles[i][0] = "An " + title
+#            elif ", A (" in title:
+#                title = title.replace(", A (", " (")
+#                self.titles[i][0] = "A " + title
 
 
 
@@ -425,7 +473,7 @@ class Chatbot:
       # The values stored in each row i and column j is the rating for
       # movie i by user j
       self.titles, self.ratings = ratings()
-      self.handleArticles();
+      #self.handleArticles();
       if self.binary:
         self.binarize()
       else:
