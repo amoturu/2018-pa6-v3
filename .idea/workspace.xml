@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c87be2d3-4caa-48f7-b108-915f93110f66" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/chatbot.py" afterPath="$PROJECT_DIR$/chatbot.py" />
     </list>
     <ignored path="2018-pa6-v3.iws" />
@@ -28,11 +27,11 @@
       <file leaf-file-name="chatbot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/chatbot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="362">
-              <caret line="363" column="0" selection-start-line="363" selection-start-column="0" selection-end-line="363" selection-end-column="0" />
+            <state relative-caret-position="167">
+              <caret line="579" column="45" selection-start-line="579" selection-start-column="45" selection-end-line="579" selection-end-column="45" />
               <folding>
                 <element signature="e#213#223#0" expanded="true" />
-                <marker date="1520033708000" expanded="false" signature="213:245" ph="import ..." />
+                <marker date="1520034632000" expanded="false" signature="213:245" ph="import ..." />
               </folding>
             </state>
           </provider>
@@ -477,7 +476,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#213#223#0" expanded="true" />
-            <marker date="1520033708000" expanded="false" signature="213:245" ph="import ..." />
+            <marker date="1520034632000" expanded="false" signature="213:245" ph="import ..." />
           </folding>
         </state>
       </provider>
@@ -628,11 +627,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/chatbot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="363" column="0" selection-start-line="363" selection-start-column="0" selection-end-line="363" selection-end-column="0" />
+        <state relative-caret-position="167">
+          <caret line="579" column="45" selection-start-line="579" selection-start-column="45" selection-end-line="579" selection-end-column="45" />
           <folding>
             <element signature="e#213#223#0" expanded="true" />
-            <marker date="1520033708000" expanded="false" signature="213:245" ph="import ..." />
+            <marker date="1520034632000" expanded="false" signature="213:245" ph="import ..." />
           </folding>
         </state>
       </provider>
