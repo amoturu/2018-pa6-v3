@@ -195,22 +195,25 @@ class Chatbot:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
             return movieSentimentResponse + "Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
 
-    def extractWithForeignTitles(self, input):
-        movies = re.findall("\"([^\"]*)\"", input)
-        if len(movies) == 0:
-            movies = self.extractUnquotedMovies(input)
-        if len(movies) != 1:
-            return "Please tell us about one movie"
+    def extractWithForeignTitles(self, movie):
+	#takes in movie that was given in quotes
+	#assuming that it didn't find anything in original titles
 
-        movie = movies[0]
+        #movies = re.findall("\"([^\"]*)\"", input)
+        #if len(movies) == 0:
+        #    movies = self.extractUnquotedMovies(input)
+        #if len(movies) != 1:
+        #    return "Please tell us about one movie"
 
-        print self.findEmotion(input)
+        #movie = movies[0]
+
+        #print self.findEmotion(input)
 
         if movie not in self.titleDict:
             if movie in self.alternateTitles:
                 movie = self.alternateTitles[movie]
             else
-
+		pass
         #creates list of original titles and dict of alternate titles, still with years at end
         for title in self.titles:
             possible_titles = re.findall('(.*?) (?:\((?:a.k.a. )?(.*)\) )?\([0-9]{4}\)',title)
@@ -261,7 +264,7 @@ class Chatbot:
                     movies.append(spellChecked)
         return movies
 
-    #Returns the spell corrected movie title, or False if none were found
+    #Returns the spell corrected movie title, or None if none were found
     def spellCheck(self, movie):
         #look at each word
         #find titles with each word having edit distance less than 2
@@ -271,7 +274,7 @@ class Chatbot:
 
         #for each title in our title dict
         for title_words in splitTitleDict:
-            possible_titles = re.findall('(.*?) (?:\((?:a.k.a. )?(.*)\) )?\([0-9]{4}\)',title)
+            #possible_titles = re.findall('(.*?) (?:\((?:a.k.a. )?(.*)\) )?\([0-9]{4}\)',title)
 
             #if the number of words doesn't match, move to next possible title
             if len(given_words) != len(title_words):
@@ -291,6 +294,8 @@ class Chatbot:
             #if all words were within reason, return the title
             if goodMovie:
                 return title
+
+	return None
 
     def computeEditDistance(self,word1,word2):
         compArray = np.zeros([len(word2)+1,len(word1)+1])
