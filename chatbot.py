@@ -75,7 +75,8 @@ class Chatbot:
       self.StrongNegativeResponse = ["%s is disgusting! I won't see it and never put yourself through the pain of watching it again!",
                                      "I should find the director and let him know he is a failure! Because you hated %s",
                                      "Because of you, %s is no longer considered a movie in my eyes but rather a pile of garbage.",
-                                     "The thought of %s's lack of entertainment value makes me want to cry. I'm sorry you hated it"]
+                                     "The thought of %s's lack of entertainment value makes me want to cry. I'm sorry you hated it",
+                                     "%s should be played on repeat in hell. You hate that movie, so bad people must watch it."]
 
       self.NegativeResponse = ["Remind me to not see %s since you seem not to have liked it.",
                                        "I'm sorry that you didn't like %s",
@@ -113,7 +114,9 @@ class Chatbot:
                                                  "Let's get back to talking about movies. I don't know why you are taling about trust."],
                                         'sadness':["Please don't talk about sad things. Just talk about movies! Movies are life.",
                                                    "Sadness is a sad emotion. Maybe talking about movies will make you seem less sad.",
-                                                   "Don't talk about sad things. Be excited to talk about movies."],
+                                                   "Don't talk about sad things. Be excited to talk about movies.",
+                                                   "Sadness is overrated. Stop talking about sad things. Talk about movies.",
+                                                   "Cry me a river is a song. I'm thinking about it because you are talking about sad things and not movies."],
                                         'disgust':[],
                                         'anticipation':[],
                                         'surprise':[],
