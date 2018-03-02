@@ -96,11 +96,11 @@ class Chatbot:
                               "I hate questions like \"%s\" They cause me to yearn for when you would tell me about movies."]
       self.SpecialStrongPositiveSentimentWords = ["love", "great", "amazing", "fantastic", "perfect", "incredible", "spectacular", "extraordinary", "marvelous", "awesome"]
       self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
-      self.emotionResponseDictionary = {"anger" : ["You seem angry. I find that watching movies makes me feel less angry.",
-                                                   "I'm detecting anger. Please don't hurt me.",
-                                                   "If you are angry, please drink a delicious diet coke and watch a movie",
-                                                   "Don't be angry! You are beautiful."
-                                                   "Being angry isn't fun, but helping me find the perfect movie for you is!"],
+      self.emotionResponseDictionary = {"anger" : ["You seem annoyed. I find that watching movies makes me feel less annoyed.",
+                                                   "I'm detecting some level of annoyance. Please don't hurt me.",
+                                                   "If you are annoyed, please drink a delicious diet coke and watch a movie",
+                                                   "Don't be annoyed! You are beautiful."
+                                                   "Being annoyed isn't fun, but helping me find the perfect movie for you is!"],
                                         'fear' : ["OMG are you in trouble. I'm detecting fear. Quickly, let's watch a movie so we aren't scared.",
                                                   "If you are fearful, don't be. I'm here.",
                                                   "Fear is the only thing to be scared of. Oh no, you seem to have fear. Forget that I said that.",
