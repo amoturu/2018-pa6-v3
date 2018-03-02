@@ -33,6 +33,7 @@ class Chatbot:
       #self.seekingMovie is meant to be true when looking for another movie recommendation from the user.
       #if the input does not contain another movie recommendation it will ask the user again for one.
       self.seekingMovie = False
+      self.hasAlreadyDoneExtraInit = False
       self.binary = True
       self.havelimitgenre = False
       self.havelimityear = False
@@ -50,7 +51,7 @@ class Chatbot:
       self.findNamesRegex = '(.*?) (?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(\([0-9]{4}-?(?:[0-9]{4})?\))'
       self.emoLex = {'anger':[],'anticipation':[],'disgust':[],'fear':[],'joy':[],'negative':[],'positive':[],'sadness':[],'surprise':[],'trust':[]}
       # self.binarized = []
-      self.read_data()
+      # self.read_data()
       self.porter = PorterStemmer()
       self.positiveSet = set()
       self.negativeSet = set()
@@ -94,7 +95,7 @@ class Chatbot:
                               "I hate questions like %s. They cause me to yearn for when you would tell me about movies."]
       self.SpecialStrongPositiveSentimentWords = ["love", "great", "amazing", "fantastic", "perfect", "incredible", "spectacular", "extraordinary", "marvelous", "awesome"]
       self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
-      self.sentimentBuilder()
+      # self.sentimentBuilder()
 
 
 
@@ -567,7 +568,10 @@ class Chatbot:
       # highly recommended                                                        #
       #############################################################################
       response = "no response"
-
+      if not self.hasAlreadyDoneExtraInit:
+        self.read_data()
+        self.sentimentBuilder()
+        self.hasAlreadyDoneExtraInit = True
       if self.gettinggenre == True:
         response = self.getGenre(input)
       elif self.gettingyear == True:
@@ -615,7 +619,7 @@ class Chatbot:
       # movie i by user j
       self.titles, self.ratings = ratings()
       #self.handleArticles();
-      if self.binary:
+      if not self.is_turbo:
         self.binarize()
       else:
         #user user binary
@@ -727,7 +731,7 @@ class Chatbot:
                   # print "setting rating"
                   rating = 0
                   for ratedmov in self.ratedmovies:
-                      if self.binary:
+                      if not self.is_turbo:
                         dist = self.distance(self.binarized[unratedmov], self.binarized[ratedmov])
                       else:
                         dist = self.distance(self.meancentered[unratedmov], self.meancentered[ratedmov])
