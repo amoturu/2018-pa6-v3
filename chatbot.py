@@ -66,6 +66,7 @@ class Chatbot:
                                       "Let's please talk about movies! If we find a movie you like, you will be so happy!",
                                       "Movies are so much more fun to talk about! Let's do that! Please!",
                                       "If we find a movie that you enjoy, maybe your friends will enjoy it too! Maybe you will make new friends."]
+      self.QuestionWords = ["Who", "Where", "Why", "What", "When", "How", "Do", "Is", "Can", "Could", "Would"]
 
 
 
@@ -175,14 +176,23 @@ class Chatbot:
         movies = re.findall("\"([^\"]*)\"", input)
         if len(movies) == 0:
             if(self.is_turbo):
-                return "HELLO"
-            return "I can't seem to find a movie in your remark"
+                movies = self.extractUnquotedMovies(input)
+                if len(movies) == 0:
+
+                    return "I can't seem to find a movie in your remark"
+            else:
+                return "I can't seem to find a movie in your remark"
 
         if len(movies) > 1:
             return "Right now I'm detecting multiple movies. Please only tell me one movie!"
         movie = movies[0]
         if movie not in self.titleDict:
-            return "We can't find that movie in our database. Perhaps you can tell us about another one."
+            if (self.is_turbo):
+                movie = self.spellCheck(movie)
+                if movie == None:
+                    return "We can't find that movie in our database. Perhaps you can tell us about another one."
+            else:
+                return "We can't find that movie in our database. Perhaps you can tell us about another one."
         movieSentimentResponse = self.sentimentAnalysis(input, movie)
         if (len(self.ratedmovies) >= 5):
             #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
@@ -195,25 +205,23 @@ class Chatbot:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
             return movieSentimentResponse + "Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
 
-    def extractWithForeignTitles(self, movie):
-	#takes in movie that was given in quotes
-	#assuming that it didn't find anything in original titles
+    def extractWithForeignTitles(self, input):
+        movies = re.findall("\"([^\"]*)\"", input)
+        if len(movies) == 0:
+            movies = self.extractUnquotedMovies(input)
+        if len(movies) != 1:
+            return "Please tell us about one movie"
 
-        #movies = re.findall("\"([^\"]*)\"", input)
-        #if len(movies) == 0:
-        #    movies = self.extractUnquotedMovies(input)
-        #if len(movies) != 1:
-        #    return "Please tell us about one movie"
+        movie = movies[0]
 
-        #movie = movies[0]
-
-        #print self.findEmotion(input)
+        print self.findEmotion(input)
 
         if movie not in self.titleDict:
             if movie in self.alternateTitles:
                 movie = self.alternateTitles[movie]
-            else
-		pass
+            else:
+                pass
+
         #creates list of original titles and dict of alternate titles, still with years at end
         for title in self.titles:
             possible_titles = re.findall('(.*?) (?:\((?:a.k.a. )?(.*)\) )?\([0-9]{4}\)',title)
@@ -230,7 +238,7 @@ class Chatbot:
 
         if movie not in possible_titles:
             finalmovie = self.spellCheck(movie)
-            if !finalmovie:
+            if not finalmovie:
                 return "We can't find that movie in our database. Perhaps you can tell us about another one"
         if (self.countMovieRecs == 5):
             return "Top Movie: " + str(self.ratingmovie()[0])
@@ -256,6 +264,7 @@ class Chatbot:
             movie = ' '.join(movie)
             if movie.lower() in lowerTitleDict:
                 movies.append(movie)
+                return movies
         if len(movies) == 0:
             for movie in possible_movies:
                 movie = ' '.join(movie)
@@ -264,7 +273,7 @@ class Chatbot:
                     movies.append(spellChecked)
         return movies
 
-    #Returns the spell corrected movie title, or None if none were found
+    #Returns the spell corrected movie title, or False if none were found
     def spellCheck(self, movie):
         #look at each word
         #find titles with each word having edit distance less than 2
@@ -294,8 +303,7 @@ class Chatbot:
             #if all words were within reason, return the title
             if goodMovie:
                 return title
-
-	return None
+        return None
 
     def computeEditDistance(self,word1,word2):
         compArray = np.zeros([len(word2)+1,len(word1)+1])
