@@ -98,7 +98,7 @@ class Chatbot:
       self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
       self.emotionResponseDictionary = {"anger" : ["You seem angry. I find that watching movies makes me feel less angry.",
                                                    "I'm detecting anger. Please don't hurt me.",
-                                                   "If you are angry, please drink a delicious diet coke and watch a movie.",
+                                                   "If you are angry, please drink a delicious diet coke and watch a movie",
                                                    "Don't be angry! You are beautiful."
                                                    "Being angry isn't fun, but helping me find the perfect movie for you is!"],
                                         'fear' : ["OMG are you in trouble. I'm detecting fear. Quickly, let's watch a movie so we aren't scared.",
@@ -116,10 +116,10 @@ class Chatbot:
                                                    "Don't talk about sad things. Be excited to talk about movies.",
                                                    "Sadness is overrated. Stop talking about sad things. Talk about movies.",
                                                    "Cry me a river is a song. I'm thinking about it because you are talking about sad things and not movies."],
-                                        'disgust':[],
-                                        'anticipation':[],
-                                        'surprise':[],
-                                        'joy':[]}
+                                        'disgust':["Ew! What you just said is disgusting. Please tell me about movies. They are less disgusting."],
+                                        'anticipation':["Are you excited? I'm detecting anticipation. I'm anticipating a great movie for you."],
+                                        'surprise':["Wow, you just surprised my. Please surprise me again by talking about movies."],
+                                        'joy':["Are you happy? I'm detecting joy. Let's be happy together and talk about movies."]}
 
 
 
@@ -353,7 +353,7 @@ class Chatbot:
             questionPhrase = self.QuestionOptions[np.random.randint(0, len(self.QuestionOptions))]%unrelateds;
             return questionPhrase
         else:
-            return None
+            return self.findEmotion(input)
 
 
 
@@ -518,31 +518,44 @@ class Chatbot:
 
     #returns the emotion the person is likely feeling. Still need good words though.
     def findEmotion(self, input):
-	input = re.sub('[^\w\s]','',input)
+        input = re.sub('[^\w\s]','',input)
+        input_list = input.split(' ')
+        emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
+        foundE = False;
+        for word in input_list:
+            word = self.porter.stem(word)
+            word = word.lower()
+            if word in self.emoLex['anger']:
+                emoDict['anger'] += 2
+                foundE = True;
+            if word in self.emoLex['fear']:
+                emoDict['fear'] += 2
+                foundE = True;
+            if word in self.emoLex['trust']:
+                emoDict['joy'] += 1
+		emoDict['fear'] += 1
+                foundE = True;
+            if word in self.emoLex['sadness']:
+                emoDict['sadness'] += 2
+                foundE = True;
+            if word in self.emoLex['disgust']:
+                emoDict['anger'] += 1
+                emoDict['sadness'] += 1
+                foundE = True;
+            if word in self.emoLex['anticipation']:
+                emoDict['joy'] += 1
+                emoDict['anger'] += 1
+                foundE = True;
+            if word in self.emoLex['surprise']:
+                emoDict['fear'] += 1
+                emoDict['sadness'] += 1
+                foundE = True;
+            if word in self.emoLex['joy']:
+                emoDict['joy'] += 2
+                foundE = True;
 
-	input_list = input.split(' ')
-	emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
-	for word in input_list:
-	    if word in self.emoLex['anger']:
-		emoDict['anger'] += 2
-	    if word in self.emoLex['fear']:
-		emoDict['fear'] += 2
-	    if word in self.emoLex['trust']:
-		emoDict['fear'] += 1
-		emoDict['joy'] += 1
-	    if word in self.emoLex['sadness']:
-		emoDict['sadness'] += 2
-	    if word in self.emoLex['disgust']:
-		emoDict['anger'] += 1
-		emoDict['sadness'] += 1
-	    if word in self.emoLex['anticipation']:
-		emoDict['anger'] += 1
-		emoDict['joy'] += 1
-	    if word in self.emoLex['surprise']:
-		emoDict['sadness'] += 1
-		emoDict['fear'] += 1
-	    if word in self.emoLex['joy']:
-		emoDict['joy'] += 2
+        if foundE == False:
+            return "No Emotion"
         return max(emoDict, key = emoDict.get)
 
 
@@ -721,7 +734,7 @@ class Chatbot:
 	    emotion = datum[1]
 	    val = datum[2]
 	    if val == '1':
-		self.emoLex[emotion].append(word)
+		self.emoLex[emotion].append(self.porter.stem(word))
 
     def distance(self, u, v):
       """Calculates a given distance function between vectors u and v"""
