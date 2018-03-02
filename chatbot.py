@@ -133,11 +133,9 @@ class Chatbot:
         count = 0
         for x in self.titles:
             self.titleDict[x[0]] = count
-	    #print x[0]
 
 	    #gets the original title and all alternate titles (and the year)
 	    all_names = re.findall(self.findNamesRegex,x[0])
-	    #print all_names
 	    if all_names:
 	        all_names = list(all_names[0])
 	    else:
@@ -240,7 +238,6 @@ class Chatbot:
 
 
     def sentimentAnalysis(self, input, movie):
-        input = input.replace(movie, "")
         positiveScore = 0;
         negativeScore = 0;
         negationFlag = False;
@@ -300,7 +297,7 @@ class Chatbot:
                 movieResponse = self.StrongNegativeResponse[np.random.randint(0, len(self.StrongNegativeResponse))]
             return movieResponse
         if (positiveScore == 0 and negativeScore == 0) or (positiveScore == negativeScore):
-            return "I'm sorry but I can't tell what you think about %s. Did you like %s? " % (movie, movie)
+            return "I'm sorry but I can't tell what you think about %s. Tell me how you feel about %s? " % (movie, movie)
 
 
     def extractGenres(self, input):
@@ -327,6 +324,11 @@ class Chatbot:
 
 
     def extractMovie(self, input):
+        unfoundInDataBaseScript = ["Well this is embarassing but I can't find \"%s\" in my database. Maybe you could tell me another movie.",
+                                   "Who would have thought, but I can't find \"%s\" in my database. Tell me another one please.",
+                                   "Your taste is too indie for me. I can't find \"%s\" in my database. Please tell me another one.",
+                                   "I can't find \"%s\" in my database. Try another film please.",
+                                   "Well it seems I've failed you. I can't find \"%s\" in my database. Please try another."]
         movies = re.findall("\"([^\"]*)\"", input)
 	#movie = self.extractWithForeignTitles(input)
         if len(movies) == 0:
@@ -343,20 +345,24 @@ class Chatbot:
         if len(movies) > 1:
             return "Right now I'm detecting multiple movies. Please only tell me one movie!"
         movie = movies[0]
-	
+        input = input.replace(movie, "")
 	if movie.lower() in self.lowerTitleDict:
 	        movie_index = self.lowerTitleDict[movie.lower()]
 	        movie = self.titles[movie_index][0]
 	else:
 #        if movie not in self.titleDict:
+            unFoundMovie = movie;
+            tellThem = unfoundInDataBaseScript[np.random.randint(0, len(unfoundInDataBaseScript))]
+            tellThem = tellThem%unFoundMovie
             if (self.is_turbo):
                 movie = self.spellCheck(movie)
                 if movie == None:
-                    return "We can't find that movie in our database. Perhaps you can tell us about another one."
+                    return tellThem
             else:
-                return "We can't find that movie in our database. Perhaps you can tell us about another one."
+                return tellThem
 	movie_names = re.findall(self.findNamesRegex,movie)
 	movie,_ = self.handleAllArticles(movie_names[0][0])
+
         movieSentimentResponse = self.sentimentAnalysis(input, movie)
         if (len(self.ratedmovies) >= 5):
             #This NEEDS TO BE CORRECTED if NO RATINGMOVIE FOUND
