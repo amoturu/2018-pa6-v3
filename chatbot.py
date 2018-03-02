@@ -353,7 +353,13 @@ class Chatbot:
             questionPhrase = self.QuestionOptions[np.random.randint(0, len(self.QuestionOptions))]%unrelateds;
             return questionPhrase
         else:
-            return self.findEmotion(input)
+            emotionWordIGot = self.findEmotion(input)
+            if emotionWordIGot in self.emotionResponseDictionary:
+                responseEmotionsList = self.emotionResponseDictionary[emotionWordIGot]
+                return responseEmotionsList[np.random.randint(0, len(responseEmotionsList))]
+            else:
+                return "I'm not detecting anything of interest."
+
 
 
 
