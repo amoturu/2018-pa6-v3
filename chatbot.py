@@ -14,7 +14,7 @@ from collections import Counter
 
 #add in PorterStemmer from assignment 3/4
 from PorterStemmer import PorterStemmer
-
+import gzip
 
 import numpy as np
 
@@ -33,6 +33,7 @@ class Chatbot:
       #self.seekingMovie is meant to be true when looking for another movie recommendation from the user.
       #if the input does not contain another movie recommendation it will ask the user again for one.
       self.seekingMovie = False
+      self.hasAlreadyDoneExtraInit = False
       self.binary = True
       self.havelimitgenre = False
       self.havelimityear = False
@@ -50,7 +51,7 @@ class Chatbot:
       self.findNamesRegex = '(.*?) (?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(?:\((?:a\.k\.a\. )?([^\)]*)\) )?(\([0-9]{4}-?(?:[0-9]{4})?\))'
       self.emoLex = {'anger':[],'anticipation':[],'disgust':[],'fear':[],'joy':[],'negative':[],'positive':[],'sadness':[],'surprise':[],'trust':[]}
       # self.binarized = []
-      self.read_data()
+      # self.read_data()
       self.porter = PorterStemmer()
       self.positiveSet = set()
       self.negativeSet = set()
@@ -62,8 +63,8 @@ class Chatbot:
       self.PositiveResponse = ["It seems like you enjoyed %s. Maybe I should see it some time.",
                                    "I'm so glad you liked %s. I like when people find things they like.",
                                    "Maybe we can watch %s together some time! After all, you liked it!",
-                                   "My father also likes %s",
-                                   "It's good to see that you found %s to be a good movie",
+                                   "My father also likes %s.",
+                                   "It's good to see that you found %s to be a good movie.",
                                "You think %s is a good movie. And I think you are a good person!"]
       self.StrongPositiveResponse = ["This must be the greatest movie in the world! You seem to absolutely love %s",
                                      "Hold the phone! I'm going to go see %s right now! Since you adored it so much!",
@@ -183,6 +184,7 @@ class Chatbot:
 		self.titleDict[name] = count #title with article, with year
 		if shortname:
 		    self.titleDict[shortname] = count #title without article, with year
+			self.titleDict[shortname[:-1]] = count
 
             count += 1;
 
@@ -407,7 +409,7 @@ class Chatbot:
                 return movieSentimentResponse + " Also, There is a movie %s that fulfills your constraints. But I don't know if you will like it." % (self.titles[self.movFulfillsConstraints[0]][0])
         else:
             Num_Movies_Needed = 5 - len(self.ratedmovies)
-            return movieSentimentResponse + " Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommnedations."
+            return movieSentimentResponse + " Also I'll need your opinion on " + str(Num_Movies_Needed)  + " more movies before I start giving recommendations."
 
 
     #returns all the movie titles that were in the input
@@ -418,7 +420,8 @@ class Chatbot:
         movies = set([])
         input_list = input.split(' ')
 	input_list = [x for x in input_list if x != '']
-
+	#if input_list[-1][-1] in '.,;!?':
+	#    input_list[-1] = input_list[-1][:-1]
         possible_movies = []
 
         for i,word in enumerate(input_list):
@@ -426,14 +429,21 @@ class Chatbot:
                 sublists = [sublist for sublist in (input_list[i:i+length] for length in xrange(1,len(input_list)-i+1))]
 
                 possible_movies.extend(sublists)
+	#for movie in possible_movies:
+	#    movie = ' '.join(movie)
+	possible_movies = [' '.join(x) for x in possible_movies]
+
+	for movie in possible_movies:
+	    if movie[-1] in '.,;!?':
+		possible_movies.append(movie[:-1])
+
 	possible_movies.sort(key = len)
 	possible_movies = possible_movies[::-1]
+
         for movie in possible_movies:
-            movie = ' '.join(movie)
 
             if movie.lower() in self.lowerTitleDict:
-		movie_index = self.lowerTitleDict[movie.lower()]
-                movies.add(self.titles[movie_index][0])
+		movies.add(movie)
 
 	movies = list(movies)
 	movies.sort(key = len)
@@ -509,7 +519,6 @@ class Chatbot:
 
 	input_list = input.split(' ')
 	emoDict = {'anger':0,'fear':0,'trust':0,'sadness':0,'disgust':0,'anticipation':0,'surprise':0,'joy':0}
-
 	for word in input_list:
 	    if word in self.emoLex['anger']:
 		emoDict['anger'] += 1
@@ -589,7 +598,10 @@ class Chatbot:
       # highly recommended                                                        #
       #############################################################################
       response = "no response"
-
+      if not self.hasAlreadyDoneExtraInit:
+        self.read_data()
+        self.sentimentBuilder()
+        self.hasAlreadyDoneExtraInit = True
       if self.gettinggenre == True:
         response = self.getGenre(input)
       elif self.gettingyear == True:
@@ -637,7 +649,7 @@ class Chatbot:
       # movie i by user j
       self.titles, self.ratings = ratings()
       #self.handleArticles();
-      if self.binary:
+      if not self.is_turbo:
         self.binarize()
       else:
         #user user binary
@@ -689,8 +701,9 @@ class Chatbot:
             self.meancentered[movieRow][userCol] = column[movieRow]
 
     def makeEmoLex(self):
-	with open('deps/emoLex.txt', 'r') as f:
+	with gzip.open('deps/emoLex.txt.gz', 'r') as f:
 	    lines = f.readlines()
+
 	for line in lines:
 	    datum = re.findall('(\w*)\s+(\w*)\s+([0-9])',line)
 	    if datum:
@@ -749,7 +762,7 @@ class Chatbot:
                   # print "setting rating"
                   rating = 0
                   for ratedmov in self.ratedmovies:
-                      if self.binary:
+                      if not self.is_turbo:
                         dist = self.distance(self.binarized[unratedmov], self.binarized[ratedmov])
                       else:
                         dist = self.distance(self.meancentered[unratedmov], self.meancentered[ratedmov])
@@ -784,7 +797,8 @@ class Chatbot:
       Creative features that were implemented and listed in the rubric: Identifying movies 
       without quotation marks or perfect capitalization, Fine-grained sentiment 
       extraction, Spell-checking movie titles, Responding to arbitrary input, Speaking 
-      very fluently, Using non-binarized dataset, Alternate/foreign titles. 
+      very fluently, Using non-binarized dataset, Alternate/foreign titles, 
+      Identifying and responding to emotions (through unrelated non-movie inputs). 
       For the creative mode, we implemented used the non-binarized dataset. We 
       noticed that user mean centering was more successful than item mean centering.
       We still use item-item collaborative filtering. 
