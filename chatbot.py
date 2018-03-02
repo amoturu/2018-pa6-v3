@@ -33,16 +33,12 @@ class Chatbot:
       #self.seekingMovie is meant to be true when looking for another movie recommendation from the user.
       #if the input does not contain another movie recommendation it will ask the user again for one.
       self.seekingMovie = False
-      self.binary = False
+      self.binary = True
       self.havelimitgenre = False
       self.ratedmovies = {}
       self.titleDict = {}
-<<<<<<< HEAD
-      self.titleDict
-=======
       self.topgenres = {}
       self.limitgenre = ""
->>>>>>> 9b37d64bce3e723e9263bce7bb41c9ee2dbb3ee8
       self.unratedmovies = []
       self.genres = ["Adventure", "Animation", "Children", "Comedy", "Fantasy", "Romance", "Drama", "Thriller", "Horror", "Action", "Sci-Fi", "Mystery", "Crime", "Documentary", "War", "Musical", "Western"]
       # self.binarized = []
@@ -178,13 +174,10 @@ class Chatbot:
     def extractMovie(self, input):
         movies = re.findall("\"([^\"]*)\"", input)
         if len(movies) == 0:
-<<<<<<< HEAD
             if(self.is_turbo):
                 return "HELLO"
             return "I can't seem to find a movie in your remark"
-=======
-          return "Could you please tell me about a movie that you watched?"
->>>>>>> 9b37d64bce3e723e9263bce7bb41c9ee2dbb3ee8
+
         if len(movies) > 1:
             return "Right now I'm detecting multiple movies. Please only tell me one movie!"
         movie = movies[0]
