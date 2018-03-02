@@ -79,8 +79,8 @@ class Chatbot:
                                      "%s should be played on repeat in hell. You hate that movie, so bad people must watch it."]
 
       self.NegativeResponse = ["Remind me to not see %s since you seem not to have liked it.",
-                                       "I'm sorry that you didn't like %s",
-                                       "I also didn't like %s",
+                                       "I'm sorry that you didn't like %s.",
+                                       "I also didn't like %s.",
                                "I'll try not to see %s. Since you didn't like it.",
                                "If you don't like %s, then I don't like it either."]
       self.ArbitraryInputResponses = ["You don't seem to be talking about a movie. Why don't we talk about a movie?",
@@ -89,11 +89,11 @@ class Chatbot:
                                       "Movies are so much more fun to talk about! Let's do that! Please!",
                                       "If we find a movie that you enjoy, maybe your friends will enjoy it too! Maybe you will make new friends."]
       self.QuestionWords = ["Who", "Where", "Why", "What", "When", "How", "Do", "Is", "Can", "Could", "Would"]
-      self.QuestionOptions = ["How about saying please, %s? Just kidding, you are really polite, but my soul yearns to talk about movies.",
-                              "Why would anyone want to know %s? Tell me about movies.",
-                              "The answer to %s? Is found only through hours of enjoying your favorite movies. Please enjoy them.",
-                              "Would a philosopher ask %s? Does this mean you are a philosopher? Forget it, tell me about movies you like!",
-                              "I hate questions like %s. They cause me to yearn for when you would tell me about movies."]
+      self.QuestionOptions = ["How about saying \"Please, %s?\" Just kidding, you are really polite, but my soul yearns to talk about movies.",
+                              "Why would anyone want to know \"%s?\" Tell me about movies.",
+                              "The answer to \"%s?\" is found only through hours of enjoying your favorite movies. Please enjoy them.",
+                              "Would a philosopher ask, \"%s?\" Does this mean you are a philosopher? Forget it, tell me about movies you like!",
+                              "I hate questions like \"%s\" They cause me to yearn for when you would tell me about movies."]
       self.SpecialStrongPositiveSentimentWords = ["love", "great", "amazing", "fantastic", "perfect", "incredible", "spectacular", "extraordinary", "marvelous", "awesome"]
       self.SpecialStrongNegativeSentimentWords = ["hate", "awful", "disgusting", "terrible", "shameful", "abysmal", "atrocious", "pathetic"]
       self.sentimentBuilder()
