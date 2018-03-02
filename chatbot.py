@@ -184,6 +184,7 @@ class Chatbot:
 		self.titleDict[name] = count #title with article, with year
 		if shortname:
 		    self.titleDict[shortname] = count #title without article, with year
+		    if shortname[-1] in '.,;!?':
 			self.titleDict[shortname[:-1]] = count
 
             count += 1;
