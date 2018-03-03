@@ -66,16 +66,16 @@ class Chatbot:
                                    "My father also likes %s.",
                                    "It's good to see that you found %s to be a good movie.",
                                "You think %s is a good movie. And I think you are a good person!"]
-      self.StrongPositiveResponse = ["This must be the greatest movie in the world! You seem to absolutely love %s",
+      self.StrongPositiveResponse = ["This must be the greatest movie in the world! You seem to absolutely love %s!",
                                      "Hold the phone! I'm going to go see %s right now! Since you adored it so much!",
                                      "No movie will ever compare to how amazing %s was! It must be one of your favorites!",
                                      "Every Oscar in history should go to %s. If it is has amazing as you say it is.",
                                      "%s isn't a movie it's a moment in history that you expereinced and that you loved! Maybe one day I'll find such happiness."]
 
       self.StrongNegativeResponse = ["%s is disgusting! I won't see it and never put yourself through the pain of watching it again!",
-                                     "I should find the director and let him know he is a failure! Because you hated %s",
+                                     "I should find the director and let him know he is a failure! Because you hated %s!",
                                      "Because of you, %s is no longer considered a movie in my eyes but rather a pile of garbage.",
-                                     "The thought of %s's lack of entertainment value makes me want to cry. I'm sorry you hated it",
+                                     "The thought of %s's lack of entertainment value makes me want to cry. I'm sorry you hated it.",
                                      "%s should be played on repeat in hell. You hate that movie, so bad people must watch it."]
 
       self.NegativeResponse = ["Remind me to not see %s since you seem not to have liked it.",
@@ -84,7 +84,7 @@ class Chatbot:
                                "I'll try not to see %s. Since you didn't like it.",
                                "If you don't like %s, then I don't like it either."]
       self.ArbitraryInputResponses = ["You don't seem to be talking about a movie. Why don't we talk about a movie?",
-                                      "I really only enjoy talking about movies. It is kind of my destiny",
+                                      "I really only enjoy talking about movies. It is kind of my destiny ;).",
                                       "Let's please talk about movies! If we find a movie you like, you will be so happy!",
                                       "Movies are so much more fun to talk about! Let's do that! Please!",
                                       "If we find a movie that you enjoy, maybe your friends will enjoy it too! Maybe you will make new friends."]
