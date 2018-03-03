@@ -101,10 +101,10 @@ class Chatbot:
                                                    "If you are annoyed, please drink a delicious diet coke and watch a movie",
                                                    "Don't be annoyed! You are beautiful."
                                                    "Being annoyed isn't fun, but helping me find the perfect movie for you is!"],
-                                        'fear' : ["OMG are you in trouble. I'm detecting fear. Quickly, let's watch a movie so we aren't scared.",
-                                                  "If you are fearful, don't be. I'm here.",
+                                        'fear' : ["OMG are you in trouble. I'm detecting apprehension. Quickly, let's watch a movie so we aren't scared.",
+                                                  "If you are feeling apprehension, don't be. I'm here.",
                                                   "Fear is the only thing to be scared of. Oh no, you seem to have fear. Forget that I said that.",
-                                                  "I don't feel fear, but you seem to.",
+                                                  "I sense a submissive awe radiating through you, but ignore it and get back to movies.",
                                                   "Fear is an illusion. So why are you feeling fear? Who cares? Just tell me about movies."],
                                         'trust':["You seem to be talking about trust. Is this because you don't trust my movie recommendations? Nevermind just let me prove myself.",
                                                  "My lover has trust issues. Please stop talking about trust. It reminds me.",
@@ -112,14 +112,18 @@ class Chatbot:
                                                  "Trust is overrated. Movies should be rated.",
                                                  "Let's get back to talking about movies. I don't know why you are taling about trust."],
                                         'sadness':["Please don't talk about sad things. Just talk about movies! Movies are life.",
-                                                   "Sadness is a sad emotion. Maybe talking about movies will make you seem less sad.",
+                                                   "Are you pensive because that is a sad emotion. Maybe talking about movies will make you seem less sad.",
                                                    "Don't talk about sad things. Be excited to talk about movies.",
-                                                   "Sadness is overrated. Stop talking about sad things. Talk about movies.",
+                                                   "Being all nihilistic is overrated. Stop talking about sad things. Talk about movies.",
                                                    "Cry me a river is a song. I'm thinking about it because you are talking about sad things and not movies."],
                                         'disgust':["Ew! What you just said is disgusting. Please tell me about movies. They are less disgusting."],
                                         'anticipation':["Are you excited? I'm detecting anticipation. I'm anticipating a great movie for you."],
                                         'surprise':["Wow, you just surprised my. Please surprise me again by talking about movies."],
-                                        'joy':["Are you happy? I'm detecting joy. Let's be happy together and talk about movies."]}
+                                        'joy':["Are you happy? I'm detecting joy. Let's be happy together and talk about movies.",
+                                               "Your comment makes me think that you are a person at peace with the world. How happy you must me?"
+                                               "If you are happy and you know it, clap your hands. You should be clapping!",
+                                               "Don't worry about a thing because everything is all right with you! Now take your happiness and pick a movie.",
+                                               "I'm happy and you are at peace. What a world to live in!"]}
 
 
 
@@ -358,7 +362,11 @@ class Chatbot:
                 responseEmotionsList = self.emotionResponseDictionary[emotionWordIGot]
                 return responseEmotionsList[np.random.randint(0, len(responseEmotionsList))]
             else:
-                return "I'm not detecting anything of interest."
+                booYouSuck = ["I'm not detecting anything of interest.", "Well, you've made my life awkward. I don't get what you are saying. Talk about some movies.",
+                              "Please just get back to movies. You sound like you are talking about gibberish.",
+                              "Talk about movies! Or call my ex Eliza. I don't get what you are saying.",
+                              "We need to build bridges by talking about movies. Mention one to me and let's see where it goes."]
+                return booYouSuck[np.random.randint(0, len(booYouSuck))]
 
 
 
@@ -383,7 +391,11 @@ class Chatbot:
                 return "I can't seem to find a movie in your remark"
 
         if len(movies) > 1:
-            return "Right now I'm detecting multiple movies. Please only tell me one movie!"
+            multipleThingsMovies = ["Right now I'm detecting multiple movies. Please only tell me one movie!", "Please just talk about one movie."
+                                    "If you talk about one movie at a time, my job is easier and your life is easier. So let's try that.",
+                                    "Talk about one movie pretty please.",
+                                    "Will you just talk about one movie. Life is great when you do that."]
+            return multipleThingsMovies[np.random.randint(0, len(multipleThingsMovies))]
         movie = movies[0]
         input = input.replace(movie, "")
 	if movie.lower() in self.lowerTitleDict:
@@ -583,11 +595,11 @@ class Chatbot:
         self.gettinggenre = False
         self.gettingyear = True
         self.gotgenre = True
-        return "Ok. I will limit your genre to %s. Would you like the limit the year of the movie?" % self.limitgenre
+        return "Ok. I will limit your genre to %s. Would you like the limit the year of the movie? Please give me a yes or no response" % self.limitgenre
       elif input.lower() == "no" or input.lower() == "n" or input.lower() == "nah" or input.lower() == "no thanks":
         self.gettinggenre = False
         self.gettingyear = True
-        return "Ok! I won't limit your genre. Would you like to limit the year of the movie?"
+        return "Ok! I won't limit your genre. Would you like to limit the year of the movie? Please give me a yes or no response."
       else:
         return "Sorry! I don't think I understand. If you dont want to limit genre, please say no. Otherwise, type the genre. If you want options, type options."
 
