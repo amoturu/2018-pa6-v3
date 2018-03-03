@@ -353,7 +353,13 @@ class Chatbot:
             questionPhrase = self.QuestionOptions[np.random.randint(0, len(self.QuestionOptions))]%unrelateds;
             return questionPhrase
         else:
-            return self.findEmotion(input)
+            emotionWordIGot = self.findEmotion(input)
+            if emotionWordIGot in self.emotionResponseDictionary:
+                responseEmotionsList = self.emotionResponseDictionary[emotionWordIGot]
+                return responseEmotionsList[np.random.randint(0, len(responseEmotionsList))]
+            else:
+                return "I'm not detecting anything of interest."
+
 
 
 
@@ -589,6 +595,7 @@ class Chatbot:
       if input.lower() == "yes" or input.lower() == "y":
         return "What decade would you like to limit it to?"
       elif input.lower() == "no" or input.lower() == "n" or input.lower() == "nah" or input.lower() == "no thanks":
+        self.gettingyear = False
         return "Ok. I won't limit to a year range. I think the next movie you should see is " + str(self.ratingmovie()[0])
       elif input.isdigit() and (int(input) > 2018 or int(input) < 1900):
         return "We don't have any movies for that decade. Please try again with another year."
@@ -818,7 +825,12 @@ class Chatbot:
       without quotation marks or perfect capitalization, Fine-grained sentiment 
       extraction, Spell-checking movie titles, Responding to arbitrary input, Speaking 
       very fluently, Using non-binarized dataset, Alternate/foreign titles, 
-      Identifying and responding to emotions (through unrelated non-movie inputs). 
+      Identifying and responding to emotions (through unrelated non-movie inputs).
+      For Identifying and responding to emotions we use a four emotion based system
+      That is based off of the Plutchick's wheel of emotion. We created four emotion
+      categories from it. We have Annoyance which is combining aggressiveness and
+      contempt. So angry words count a lot towards annoyance and disgust and anticipation
+      words count somewhat. We also have pensiveness, apprehension and serenity.
       For the creative mode, we implemented used the non-binarized dataset. We 
       noticed that user mean centering was more successful than item mean centering.
       We still use item-item collaborative filtering. 
