@@ -842,7 +842,9 @@ class Chatbot:
       That is based off of the Plutchick's wheel of emotion. We created four emotion
       categories from it. We have Annoyance which is combining aggressiveness and
       contempt. So angry words count a lot towards annoyance and disgust and anticipation
-      words count somewhat. We also have pensiveness, apprehension and serenity.
+      words count somewhat. We also have a sad things, apprehension/fear and serenity/happy.
+      Please look at the four larger sections of the Plutchick wheel of emotion. That represents are
+      four overall categories. It's on slide 20 of Dan's emotion lecture.
       For the creative mode, we implemented used the non-binarized dataset. We 
       noticed that user mean centering was more successful than item mean centering.
       We still use item-item collaborative filtering. 
@@ -853,6 +855,7 @@ class Chatbot:
       the user will like the movie (ie no ratings in the movie, or one rating after
       we mean center becomes all zeros), we output that it fulfills the constraints, 
       but they might or might not like the movie.
+      Also asking what "can you" do is fun.
       """
 
 
