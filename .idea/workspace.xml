@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c87be2d3-4caa-48f7-b108-915f93110f66" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/chatbot.py" afterPath="$PROJECT_DIR$/chatbot.py" />
     </list>
     <ignored path="2018-pa6-v3.iws" />
@@ -27,11 +28,11 @@
       <file leaf-file-name="chatbot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/chatbot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12157">
-              <caret line="851" column="56" selection-start-line="851" selection-start-column="56" selection-end-line="851" selection-end-column="56" />
+            <state relative-caret-position="217">
+              <caret line="113" column="73" selection-start-line="113" selection-start-column="73" selection-end-line="113" selection-end-column="73" />
               <folding>
                 <element signature="e#213#223#0" expanded="true" />
-                <marker date="1520036448000" expanded="false" signature="213:245" ph="import ..." />
+                <marker date="1520037745000" expanded="false" signature="213:245" ph="import ..." />
               </folding>
             </state>
           </provider>
@@ -136,8 +137,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="325" />
-    <option name="y" value="23" />
+    <option name="x" value="173" />
+    <option name="y" value="111" />
     <option name="width" value="1219" />
     <option name="height" value="626" />
   </component>
@@ -419,7 +420,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="325" y="23" width="1219" height="626" extended-state="0" />
+    <frame x="173" y="111" width="1219" height="626" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2100082" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -476,7 +477,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#213#223#0" expanded="true" />
-            <marker date="1520036448000" expanded="false" signature="213:245" ph="import ..." />
+            <marker date="1520037745000" expanded="false" signature="213:245" ph="import ..." />
           </folding>
         </state>
       </provider>
@@ -601,14 +602,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/generate_submission.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/deps/emoLex.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -625,13 +618,21 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/generate_submission.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/chatbot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12157">
-          <caret line="851" column="56" selection-start-line="851" selection-start-column="56" selection-end-line="851" selection-end-column="56" />
+        <state relative-caret-position="217">
+          <caret line="113" column="73" selection-start-line="113" selection-start-column="73" selection-end-line="113" selection-end-column="73" />
           <folding>
             <element signature="e#213#223#0" expanded="true" />
-            <marker date="1520036448000" expanded="false" signature="213:245" ph="import ..." />
+            <marker date="1520037745000" expanded="false" signature="213:245" ph="import ..." />
           </folding>
         </state>
       </provider>

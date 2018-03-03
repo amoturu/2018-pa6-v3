@@ -99,7 +99,7 @@ class Chatbot:
       self.emotionResponseDictionary = {"anger" : ["You seem annoyed. I find that watching movies makes me feel less annoyed.",
                                                    "I'm detecting some level of annoyance. Please don't hurt me.",
                                                    "If you are annoyed, please drink a delicious diet coke and watch a movie",
-                                                   "Don't be annoyed! You are beautiful."
+                                                   "Don't be annoyed! You are beautiful.",
                                                    "Being annoyed isn't fun, but helping me find the perfect movie for you is!"],
                                         'fear' : ["OMG are you in trouble. I'm detecting apprehension. Quickly, let's watch a movie so we aren't scared.",
                                                   "If you are feeling apprehension, don't be. I'm here.",
@@ -120,7 +120,7 @@ class Chatbot:
                                         'anticipation':["Are you excited? I'm detecting anticipation. I'm anticipating a great movie for you."],
                                         'surprise':["Wow, you just surprised my. Please surprise me again by talking about movies."],
                                         'joy':["Are you happy? I'm detecting joy. Let's be happy together and talk about movies.",
-                                               "Your comment makes me think that you are a person at peace with the world. How happy you must me?"
+                                               "Your comment makes me think that you are a person at peace with the world. How happy you must me?",
                                                "If you are happy and you know it, clap your hands. You should be clapping!",
                                                "Don't worry about a thing because everything is all right with you! Now take your happiness and pick a movie.",
                                                "I'm happy and you are at peace. What a world to live in!"]}
@@ -855,7 +855,7 @@ class Chatbot:
       the user will like the movie (ie no ratings in the movie, or one rating after
       we mean center becomes all zeros), we output that it fulfills the constraints, 
       but they might or might not like the movie.
-      Also asking what "can you" do is fun.
+      Also asking "can you" questions is fun.
       """
 
 
